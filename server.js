@@ -21,6 +21,17 @@ app.get("/", (req, res) => {
   res.send("Angular Node Backend");
 });
 
+
+app.use((err, req, res, next) => {
+  console.error("Global error handler:", err);
+  const statusCode = err.statusCode || 500;
+  res.status(statusCode).json({
+    status: "failed",
+    statusCode,
+    message: err.message || "Something went wrong",
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
