@@ -4,7 +4,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const app = express();
 const port = process.env.PORT || 3000;
-
+const AppError = require("./utils/appError.js");
 app.use(morgan("dev"));
 
 app.use(express.json());
