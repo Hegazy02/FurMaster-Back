@@ -6,9 +6,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 const AppError = require("./utils/appError.js");
 const paymentMethodRoutes = require("./routes/payment_method.route.js");
+const userRoutes = require("./routes/user.route.js");
 
 app.use(morgan("dev"));
-
 app.use(express.json());
 
 mongoose
@@ -32,6 +32,8 @@ app.get("/", (req, res) => {
 
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
+//user routes
+app.use("/users", userRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err);
