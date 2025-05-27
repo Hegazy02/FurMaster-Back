@@ -51,8 +51,13 @@ const updatePaymentMethod = async (req, res, next) => {
     if (!paymentMethod) {
       return next(new AppError("Payment method not found", 404));
     }
+    const isDefault = req.body.isDefault;
+    if (isDefault) {
+      await PaymentMethod.updateMany({ isDefault: true }, { isDefault: false });
+    }
     await PaymentMethod.findByIdAndUpdate(req.params.id, req.body);
-    res.status(200).json({ message: "Payment method updated successfully" });
+    const paymentMethods = await PaymentMethod.find();
+    res.status(200).json(paymentMethods);
   } catch (err) {
     next(err);
   }
