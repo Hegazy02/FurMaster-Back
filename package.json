@@ -19,13 +19,16 @@
   },
   "homepage": "https://github.com/Hegazy02/angular_node_backend#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cloudinary": "^1.41.3",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.0",
-    "multer-storage-cloudinary": "^4.0.0"
+    "multer-storage-cloudinary": "^4.0.0",
+    "twilio": "^5.7.0"
   }
 }
