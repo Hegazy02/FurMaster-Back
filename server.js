@@ -7,6 +7,8 @@ const port = process.env.PORT || 3000;
 const AppError = require("./utils/appError.js");
 const paymentMethodRoutes = require("./routes/payment_method.route.js");
 const userRoutes = require("./routes/user.route.js");
+//this partion
+const authRoutes=require("./routes/auth.route.js")
 const bannerRoutes = require("./routes/banner.route.js");
 
 app.use(morgan("dev"));
@@ -43,6 +45,8 @@ app.get("/", (req, res) => {
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
 app.use("/users", userRoutes);
+//auh routs 
+app.use("/auth", authRoutes);
 
 app.use("/admin", verifyAdmin);
 //banner routes
