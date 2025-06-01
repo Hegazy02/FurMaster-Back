@@ -7,7 +7,7 @@ const signupSchema = Joi.object({
   gender: Joi.number().required(),
 
   // Optional fields
-  phonenumber: Joi.string().optional(),
+  phoneNumber: Joi.string().optional(),
   city: Joi.string().optional(),
   street: Joi.string().optional(),
   address: Joi.string().optional(),

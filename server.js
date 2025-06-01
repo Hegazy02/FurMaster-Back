@@ -12,7 +12,7 @@ const {
   verifyToken,
   verifyAdmin,
 } = require("./middlewares/auth.middleware.js");
-
+const productsRoutes = require("./routes/product.route.js");
 app.use(morgan("dev"));
 app.use(express.json());
 
@@ -28,18 +28,20 @@ mongoose
 app.get("/", (req, res) => {
   res.send("Angular Node Backend");
 });
+//auh routs
+app.use("/auth", authRoutes);
+//auth middlewares
 app.use(verifyToken);
-app.use("admin", verifyAdmin);
+app.use("/admin", verifyAdmin);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
 app.use("/users", userRoutes);
-//auh routs
-app.use("/auth", authRoutes);
 
-app.use("/admin", verifyAdmin);
 //banner routes
 app.use("/", bannerRoutes);
+//products routes
+app.use("/", productsRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err);
