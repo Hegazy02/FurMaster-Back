@@ -11,6 +11,11 @@ const userRoutes = require("./routes/user.route.js");
 app.use(morgan("dev"));
 app.use(express.json());
 
+
+
+//
+
+//
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
@@ -24,6 +29,13 @@ app.use((req, res, next) => {
   req.user = { id: "68337784a33bebac73b5f899" };
   next();
 });
+
+
+
+
+const cartRoutes = require('./routes/cart'); 
+app.use("/", cartRoutes);
+
 
 //routes
 app.get("/", (req, res) => {
