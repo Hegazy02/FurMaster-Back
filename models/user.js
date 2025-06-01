@@ -1,3 +1,4 @@
+const { required } = require("joi");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -8,7 +9,7 @@ const UsersSchema = new Schema({
   lastName: { type: String, required: true },
   gender: { type: Number, required: true },
   image: { type: String },
-  phonenumber: { type: String },
+  phonenumber: { type: String ,required:true},
   city: { type: String},
   street: { type: String},
   address: { type: String},
