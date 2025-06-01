@@ -7,7 +7,7 @@ const signupSchema = Joi.object({
   gender: Joi.number().required(),
 
   // Optional fields
-  phonenumber: Joi.string().optional(),
+  phoneNumber: Joi.string().optional(),
   city: Joi.string().optional(),
   street: Joi.string().optional(),
   address: Joi.string().optional(),
@@ -15,7 +15,11 @@ const signupSchema = Joi.object({
 
   // Required password with strong pattern
   password: Joi.string()
-    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"))
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+      )
+    )
     .required()
     .messages({
       "string.pattern.base":
