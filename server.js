@@ -9,6 +9,7 @@ const paymentMethodRoutes = require("./routes/payment_method.route.js");
 const userRoutes = require("./routes/user.route.js");
 //this partion
 const authRoutes=require("./routes/auth.route.js")
+const bannerRoutes = require("./routes/banner.route.js");
 
 app.use(morgan("dev"));
 app.use(express.json());
@@ -23,9 +24,17 @@ mongoose
 
 // for testing
 app.use((req, res, next) => {
-  req.user = { id: "68337784a33bebac73b5f899" };
+  req.user = { id: "68337784a33bebac73b5f899" , role: "admin"};
   next();
 });
+verifyAdmin = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return next(
+      new AppError("You are not authorized to access this route", 403)
+    );
+  }
+  next();
+};
 
 //routes
 app.get("/", (req, res) => {
@@ -38,6 +47,10 @@ app.use("/payment-methods", paymentMethodRoutes);
 app.use("/users", userRoutes);
 //auh routs 
 app.use("/auth", authRoutes);
+
+app.use("/admin", verifyAdmin);
+//banner routes
+app.use("/", bannerRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err);
