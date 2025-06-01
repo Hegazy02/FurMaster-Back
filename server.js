@@ -5,8 +5,12 @@ const mongoose = require("mongoose");
 const app = express();
 const port = process.env.PORT || 3000;
 const AppError = require("./utils/appError.js");
-app.use(morgan("dev"));
+const paymentMethodRoutes = require("./routes/payment_method.route.js");
+const userRoutes = require("./routes/user.route.js");
+//this partion
+const authRoutes=require("./routes/auth.route.js")
 
+app.use(morgan("dev"));
 app.use(express.json());
 
 mongoose
@@ -17,10 +21,23 @@ mongoose
     process.exit(1); // Exit process with failure code
   });
 
+// for testing
+app.use((req, res, next) => {
+  req.user = { id: "68337784a33bebac73b5f899" };
+  next();
+});
+
+//routes
 app.get("/", (req, res) => {
   res.send("Angular Node Backend");
 });
 
+//payment methods routes
+app.use("/payment-methods", paymentMethodRoutes);
+//user routes
+app.use("/users", userRoutes);
+//auh routs 
+app.use("/auth", authRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err);
