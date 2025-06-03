@@ -1,4 +1,3 @@
-const { required } = require("joi");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -13,6 +12,7 @@ const UsersSchema = new Schema({
   city: { type: String },
   street: { type: String },
   address: { type: String },
+  isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
 });
 

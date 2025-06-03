@@ -37,7 +37,7 @@ app.use("/auth", authRoutes);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
-app.use("/users", userRoutes);
+app.use("/", userRoutes);
 
 //banner routes
 app.use("/", bannerRoutes);
