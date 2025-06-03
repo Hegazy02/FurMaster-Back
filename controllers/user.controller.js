@@ -36,15 +36,19 @@ const updateMe = async (req, res, next) => {
 const getUsers = async (req, res, next) => {
   try {
     const {
-      page,
-      limit,
+      page = 1,
+      limit = 10,
       email = "",
-      isActive,
+      isActive = "true",
       orderBy = "createdAt",
       sort = "desc",
     } = req.query;
     const skip = (page - 1) * limit;
-    const filter = { email: { $regex: email, $options: "i" }, isActive };
+
+    const filter = {
+      email: { $regex: email, $options: "i" },
+      isActive: { $eq: isActive === "true" ? true : false },
+    };
 
     const users = await User.find(filter)
       .sort({ [orderBy]: sort === "asc" ? 1 : -1 })
