@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const app = express();
 const port = process.env.PORT || 3000;
+const cors = require("cors");
 const paymentMethodRoutes = require("./routes/payment_method.route.js");
 const userRoutes = require("./routes/user.route.js");
 const authRoutes = require("./routes/auth.route.js");
@@ -15,7 +16,7 @@ const {
 const productsRoutes = require("./routes/product.route.js");
 app.use(morgan("dev"));
 app.use(express.json());
-
+app.use(cors());
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
@@ -31,8 +32,8 @@ app.get("/", (req, res) => {
 //auh routs
 app.use("/auth", authRoutes);
 //auth middlewares
-app.use(verifyToken);
-app.use("/admin", verifyAdmin);
+// app.use(verifyToken);
+// app.use("/admin", verifyAdmin);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
