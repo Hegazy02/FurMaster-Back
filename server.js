@@ -8,6 +8,7 @@ const AppError = require("./utils/appError.js");
 const paymentMethodRoutes = require("./routes/payment_method.route.js");
 const userRoutes = require("./routes/user.route.js");
 const bannerRoutes = require("./routes/banner.route.js");
+const ordersRoutes = require('./routes/order');
 
 app.use(morgan("dev"));
 app.use(express.json());
@@ -43,6 +44,7 @@ app.get("/", (req, res) => {
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
 app.use("/users", userRoutes);
+app.use('/api/v1/orders', ordersRoutes);
 
 app.use("/admin", verifyAdmin);
 //banner routes
