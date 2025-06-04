@@ -6,16 +6,18 @@ const signupSchema = Joi.object({
   email: Joi.string().email().max(255).required(),
   gender: Joi.number().required(),
 
-  // Optional fields
-  phonenumber: Joi.string().optional(),
+  phoneNumber: Joi.string().required(),
   city: Joi.string().optional(),
   street: Joi.string().optional(),
   address: Joi.string().optional(),
   image: Joi.string().uri().optional(),
 
-  // Required password with strong pattern
   password: Joi.string()
-    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"))
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+      )
+    )
     .required()
     .messages({
       "string.pattern.base":

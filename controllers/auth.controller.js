@@ -1,7 +1,6 @@
-
 const User = require("../models/user");
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 require("dotenv").config();
 
@@ -9,41 +8,38 @@ const bycrypt = require("bcrypt");
 const accountSid = "ACee18fea81c10900d04a9320d4d8fc97c";
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require("twilio")(accountSid, authToken);
-const AppError=require("../utils/appError");
+const AppError = require("../utils/appError");
 
 const sginup = async (req, res, next) => {
   try {
-    const {
-
-      password, ...userObj
-    } = req.body;
+    const { password, ...userObj } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, +process.env.SALT_Round);
 
     const user = await User.create({
-    ...userObj,
+      ...userObj,
       password: hashedPassword,
     });
 
-    const token = jwt.sign({ id:user._id,role:'user' }, process.env.JWT_SECRT);
+    const token = jwt.sign(
+      { id: user._id, role: "user" },
+      process.env.JWT_SECRT
+    );
 
     const userData = user.toObject();
     delete userData.password;
 
     res.status(201).json({ token, user: userData });
-
   } catch (err) {
     next(err);
   }
 };
 
-
-
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       throw new Error("invalid credentials");
     }
@@ -53,18 +49,19 @@ const login = async (req, res, next) => {
       throw new Error("invalid credentials");
     }
 
-    const token = jwt.sign({ id:user._id,role:'user'}, process.env.JWT_SECRT);
+    const token = jwt.sign(
+      { id: user._id, role: "user" },
+      process.env.JWT_SECRT
+    );
 
     const userData = user.toObject();
     delete userData.password;
 
     res.send({ token, user: userData });
-
   } catch (err) {
     next(err);
   }
 };
-
 
 //==========================TWILIO==========================
 
@@ -83,8 +80,8 @@ const sendOTP = async (phoneNumberReceiver) => {
       to: "whatsapp:+201223057728",
       // to: `whatsapp:${phoneNumberReceiver}`,
     })
-    .then((message) => console.log(message.sid))
-    .catch(error => console.error(error));
+    .then((message) => console.log("opt sent to 01223057728 otp:",otp))
+    .catch((error) => console.error(error));
 
   return otp;
 };
@@ -117,14 +114,16 @@ const resetPassword = async (req, res, next) => {
     user.password = hashedPassword;
     await user.save();
     const { password: _p, ...userData } = user.toObject();
-    const token = jwt.sign({ id:user._id,role:'user' }, process.env.JWT_SECRT);
+    const token = jwt.sign(
+      { id: user._id, role: "user" },
+      process.env.JWT_SECRT
+    );
     res
       .status(200)
-      .json({ message: "Password reset successfully", user: userData ,token});
+      .json({ message: "Password reset successfully", user: userData, token });
   } catch (err) {
     next(err);
   }
 };
 
-
-module.exports = { sginup, login,forgetPassword, resetPassword}
+module.exports = { sginup, login, forgetPassword, resetPassword };
