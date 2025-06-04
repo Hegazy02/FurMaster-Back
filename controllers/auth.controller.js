@@ -80,7 +80,7 @@ const sendOTP = async (phoneNumberReceiver) => {
       to: "whatsapp:+201223057728",
       // to: `whatsapp:${phoneNumberReceiver}`,
     })
-    .then((message) => console.log("opt sent to 01223057728 otp:",otp))
+    .then((message) => console.log(message.sid))
     .catch((error) => console.error(error));
 
   return otp;
