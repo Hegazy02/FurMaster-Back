@@ -14,6 +14,8 @@ const {
   verifyAdmin,
 } = require("./middlewares/auth.middleware.js");
 const productsRoutes = require("./routes/product.route.js");
+const categoryRoutes = require("./routes/category.route.js");
+
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cors());
@@ -43,6 +45,8 @@ app.use("/", userRoutes);
 app.use("/", bannerRoutes);
 //products routes
 app.use("/", productsRoutes);
+//categories routes
+app.use("/", categoryRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err);
