@@ -1,13 +1,19 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-const categorySchema = mongoose.Schema({
+const colorSchema = new mongoose.Schema(
+  {
     name: {
-        type: String
+      type: String,
+      required: true,
+      minlength: 3
     },
-    image: {
-        type: String,
-        required: true
-    },
-})
+    hex: {
+      type: String,
+      required: true,
+      match: /^#([0-9a-fA-F]{6})$/
+    }
+  },
+ 
+);
 
-module.exports = mongoose.model('Category', categorySchema);
+module.exports = mongoose.model('Color', colorSchema);
