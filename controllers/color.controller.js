@@ -28,11 +28,9 @@ const createColor = async (req, res) => {
   }
 };
 
-// PATCH update a color partially
 const updateColor = async (req, res) => {
   const { id } = req.params;
 
-  // Validate input (partial allowed)
   const updateSchema = Joi.object({
     name: Joi.string().min(3),
     hexCode: Joi.string().pattern(/^#([0-9a-fA-F]{6})$/)
@@ -52,7 +50,6 @@ const updateColor = async (req, res) => {
   }
 };
 
-// DELETE a color by id
 const deleteColor = async (req, res) => {
   const { id } = req.params;
 
