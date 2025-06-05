@@ -12,7 +12,6 @@ const productSchema = Joi.object({
   rating: Joi.number().min(0).max(5).optional(),
   price: Joi.number().min(0).required(),
   offerPrice: Joi.number().min(0).optional(),
-  image: Joi.string().uri().required(),
   colors: Joi.array()
     .items(
       Joi.object({
