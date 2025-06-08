@@ -1,16 +1,10 @@
 const Category = require('../models/category');
+const mongoose = require('mongoose');
 const Joi = require('joi');
-
-
-const categorySchema = Joi.object({
-  name: Joi.string().min(3).max(30).required(),
-  image: Joi.string().uri().required()
-});
-
-const categoryUpdateSchema = Joi.object({
-  name: Joi.string().min(3).max(30),
-  image: Joi.string().uri()
-});
+const {
+  categorySchema,
+  categoryUpdateSchema,
+} = require("../validators/product.validation.js");
 
 
 const getCategory = async (req, res) => {

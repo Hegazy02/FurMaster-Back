@@ -2,26 +2,13 @@ const mongoose = require("mongoose");
 const Product = require("../models/products.js");
 // const Category = require('../models/category.js');
 // const Color = require('../models/color.js');
-const Joi = require("joi");
+const {
+  productSchema,
+  productUpdateSchema,
+} = require("../validators/product.validation.js");
 
-const productSchema = Joi.object({
-  title: Joi.string().min(3).max(100).required(),
-  description: Joi.string().min(10).max(1000).required(),
-  categoryId: Joi.string().hex().length(24).required(),
-  ratingCounter: Joi.number().integer().min(0).optional(),
-  rating: Joi.number().min(0).max(5).optional(),
-  price: Joi.number().min(0).required(),
-  offerPrice: Joi.number().min(0).optional(),
-  colors: Joi.array()
-    .items(
-      Joi.object({
-        colorId: Joi.string().hex().length(24).optional(),
-        stock: Joi.number().integer().min(0).default(0),
-        image: Joi.string().uri().optional(),
-      })
-    )
-    .optional(),
-});
+
+
 
 const createProduct = async (req, res) => {
   const { error } = productSchema.validate(req.body);
@@ -68,7 +55,7 @@ const getProductById = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
-  const { error } = productSchema.validate(req.body);
+  const { error } = productUpdateSchema.validate(req.body);
   if (error) {
     return res.status(400).json({
       success: false,
