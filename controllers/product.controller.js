@@ -199,7 +199,7 @@ const getAdminProducts = async (req, res) => {
       maxPrice,
       categoryId,
       colorId,
-      sortBy = "",
+      sortBy = "createdAt_desc",
       page = 1,
       limit = 10,
     } = req.query;
