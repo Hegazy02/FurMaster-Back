@@ -3,6 +3,7 @@ const Product = require("../models/products.js");
 // const Category = require('../models/category.js');
 // const Color = require('../models/color.js');
 const Joi = require("joi");
+const category = require("../models/category.js");
 
 const productSchema = Joi.object({
   title: Joi.string().min(3).max(100).required(),
@@ -190,11 +191,121 @@ const getProducts = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+const getAdminProducts = async (req, res) => {
+  try {
+    const {
+      title = "",
+      minPrice,
+      maxPrice,
+      categoryId,
+      colorId,
+      sortBy = "",
+      page = 1,
+      limit = 10,
+    } = req.query;
+    const skip = (page - 1) * limit;
+    const filter = {};
 
+    if (title) {
+      filter.$or = [{ title: { $regex: title, $options: "i" } }];
+    }
+
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    if (categoryId) {
+      filter.categoryId = categoryId;
+    }
+
+    if (colorId) {
+      filter["colors.colorId"] = colorId;
+    }
+    if (sortBy === "out_of_stock") {
+      filter["colors"] = {
+        $not: {
+          $elemMatch: { stock: { $gte: 1 } },
+        },
+      };
+    }
+
+    let sort = {};
+
+    switch (sortBy) {
+      case "price_asc":
+        sort = { price: 1 };
+        break;
+      case "price_desc":
+        sort = { price: -1 };
+        break;
+      case "popularity":
+        sort = { ratingCounter: -1 };
+        break;
+      case "createdAt_asc":
+        sort = { createdAt: 1 };
+        break;
+      case "createdAt_desc":
+        sort = { createdAt: -1 };
+        break;
+      case "title_asc":
+        sort = { title: 1 };
+        break;
+      case "title_desc":
+        sort = { title: -1 };
+      default:
+        sort = {};
+    }
+    console.log("filter", filter);
+
+    const total = await Product.countDocuments(filter);
+
+    const products = await Product.find(filter)
+      .select("title price offerPrice rating ratingCounter colors categoryId")
+      .populate("colors.colorId")
+      .populate("categoryId")
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+
+    const formattedProducts = products.map((p) => ({
+      _id: p._id,
+      title: p.title,
+      price: p.price,
+      offerPrice: p.offerPrice,
+      rating: p.rating,
+      ratingCounter: p.ratingCounter,
+      category: {
+        _id: p.categoryId?._id,
+        name: p.categoryId?.name,
+      },
+      colors: p.colors.map((c) => ({
+        _id: c.colorId?._id,
+        name: c.colorId?.name,
+        hex: c.colorId?.hex,
+        stock: c.stock,
+        image: c.image,
+      })),
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: "Users fetched successfully",
+      total,
+      page: Number(page),
+      totalPages: Math.ceil(total / limit),
+      data: formattedProducts,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 module.exports = {
   createProduct,
   getProductById,
   updateProduct,
   deleteProduct,
   getProducts,
+  getAdminProducts,
 };
