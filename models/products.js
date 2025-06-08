@@ -14,6 +14,7 @@ const productSchema = new mongoose.Schema({
     rating: Number,
     price: Number,
     offerPrice: Number,
+    createdAt: { type: Date, default: Date.now },
     colors: [
         {
             colorId: {

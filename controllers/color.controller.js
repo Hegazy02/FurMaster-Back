@@ -3,7 +3,7 @@ const Joi = require('joi');
 
 const colorSchema = Joi.object({
   name: Joi.string().min(3).required(),
-  hexCode: Joi.string().pattern(/^#([0-9a-fA-F]{6})$/).required()
+  hex: Joi.string().pattern(/^#([0-9a-fA-F]{6})$/).required()
 });
 
 const getColors = async (req, res) => {
