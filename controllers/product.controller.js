@@ -19,6 +19,11 @@ const createProduct = async (req, res) => {
     });
   }
   try {
+    const images = req.files.map((file) => file.path);
+    images.forEach((image, index) => {
+      req.body.colors[index].image = image;
+    });
+
     const product = new Product(req.body);
     const savedProduct = await product.save();
     res.status(201).json({ success: true, data: savedProduct });
@@ -217,7 +222,7 @@ const getProducts = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: formattedProducts,
+      data: products,
       pagination: {
         total,
         page: Number(page),
@@ -295,7 +300,6 @@ const getAdminProducts = async (req, res) => {
       default:
         sort = {};
     }
-    console.log("filter", filter);
 
     const total = await Product.countDocuments(filter);
 
@@ -306,6 +310,7 @@ const getAdminProducts = async (req, res) => {
       .sort(sort)
       .skip(skip)
       .limit(limit);
+    console.log("products");
 
     const formattedProducts = products.map((p) => ({
       _id: p._id,
@@ -320,6 +325,7 @@ const getAdminProducts = async (req, res) => {
       },
       colors: p.colors.map((c) => ({
         _id: c._id,
+        colorId: c.colorId?._id,
         name: c.colorId?.name,
         hex: c.colorId?.hex,
         stock: c.stock,
