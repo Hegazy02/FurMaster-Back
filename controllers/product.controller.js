@@ -2,27 +2,13 @@ const mongoose = require("mongoose");
 const Product = require("../models/products.js");
 // const Category = require('../models/category.js');
 // const Color = require('../models/color.js');
-const Joi = require("joi");
-const category = require("../models/category.js");
+const {
+  productSchema,
+  updateProductSchema,
+  updateProductColorSchema
+} = require("../validators/product.validation.js")
 
-const productSchema = Joi.object({
-  title: Joi.string().min(3).max(100).required(),
-  description: Joi.string().min(10).max(1000).required(),
-  categoryId: Joi.string().hex().length(24).required(),
-  ratingCounter: Joi.number().integer().min(0).optional(),
-  rating: Joi.number().min(0).max(5).optional(),
-  price: Joi.number().min(0).required(),
-  offerPrice: Joi.number().min(0).optional(),
-  colors: Joi.array()
-    .items(
-      Joi.object({
-        colorId: Joi.string().hex().length(24).optional(),
-        stock: Joi.number().integer().min(0).default(0),
-        image: Joi.string().uri().optional(),
-      })
-    )
-    .optional(),
-});
+
 
 const createProduct = async (req, res) => {
   const { error } = productSchema.validate(req.body);
@@ -68,30 +54,82 @@ const getProductById = async (req, res) => {
   }
 };
 
+
+
 const updateProduct = async (req, res) => {
-  const { error } = productSchema.validate(req.body);
+  const { error } = updateProductSchema.validate(req.body);
   if (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.details[0].message,
-    });
+    return res.status(400).json({ success: false, message: error.details[0].message });
   }
+
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      { $set: req.body },
       { new: true }
     );
+
     if (!updatedProduct) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Product not found" });
+      return res.status(404).json({ success: false, message: 'Product not found' });
     }
+
+    return res.status(200).json({ success: true, data: updatedProduct });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+
+const updateProductColor = async (req, res) => {
+  const { error } = updateProductColorSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ success: false, message: error.details[0].message });
+  }
+
+  const { variantId, colorId, stock, image } = req.body;
+  const productId = req.params.id;
+
+  if (!variantId) {
+    return res.status(400).json({ success: false, message: 'variantId is required to find the color variant' });
+  }
+
+  const updates = {};
+  if (colorId) updates['colors.$.colorId'] = colorId;
+  if (stock !== undefined) updates['colors.$.stock'] = stock;
+  if (image !== undefined) updates['colors.$.image'] = image;
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ success: false, message: 'No valid fields provided to update' });
+  }
+
+  try {
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    console.log('Product ID:', productId);
+    console.log('variantId:', variantId);
+    console.log('Available color IDs:', product.colors.map(c => c._id.toString()));
+
+    const updatedProduct = await Product.findOneAndUpdate(
+      { _id: productId, 'colors._id': variantId },
+      { $set: updates },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ success: false, message: 'Product or variant not found' });
+    }
+
     res.status(200).json({ success: true, data: updatedProduct });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
 
 const deleteProduct = async (req, res) => {
   try {
@@ -281,7 +319,7 @@ const getAdminProducts = async (req, res) => {
         name: p.categoryId?.name,
       },
       colors: p.colors.map((c) => ({
-        _id: c.colorId?._id,
+        _id: c._id,
         name: c.colorId?.name,
         hex: c.colorId?.hex,
         stock: c.stock,
@@ -305,6 +343,7 @@ module.exports = {
   createProduct,
   getProductById,
   updateProduct,
+  updateProductColor,
   deleteProduct,
   getProducts,
   getAdminProducts,
