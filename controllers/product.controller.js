@@ -2,11 +2,10 @@ const mongoose = require("mongoose");
 const Product = require("../models/products.js");
 // const Category = require('../models/category.js');
 // const Color = require('../models/color.js');
-const Joi = require("joi");
-const category = require("../models/category.js");
 const {
   productSchema,
-  updateProductSchema
+  updateProductSchema,
+  updateProductColorSchema
 } = require("../validators/product.validation.js")
 
 
@@ -64,30 +63,59 @@ const updateProduct = async (req, res) => {
   }
 
   try {
-    let query, update;
-
-    if (req.body.colorId) {
-      query = { _id: req.params.id, 'colors.colorId': req.body.colorId };
-      update = {
-        $set: {
-          ...(req.body.image !== undefined && { 'colors.$.image': req.body.image }),
-          ...(req.body.stock !== undefined && { 'colors.$.stock': req.body.stock }),
-        },
-      };
-    } else {
-      query = { _id: req.params.id };
-      update = { $set: req.body };
-    }
-
-    const updatedProduct = await Product.findOneAndUpdate(query, update, { new: true });
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    );
 
     if (!updatedProduct) {
-      return res.status(404).json({ success: false, message: 'Product not found or color not found' });
+      return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
     return res.status(200).json({ success: true, data: updatedProduct });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+
+const updateProductColor = async (req, res) => {
+  const { error } = updateProductColorSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ success: false, message: error.details[0].message });
+  }
+  const { colorId, newColorId, stock, image } = req.body;
+  const productId = req.params.id;
+
+  if (!colorId) {
+    return res.status(400).json({ success: false, message: 'colorId is required to find the color in product' });
+  }
+
+  const updates = {};
+  if (newColorId) updates['colors.$.colorId'] = newColorId;
+  if (stock !== undefined) updates['colors.$.stock'] = stock;
+  if (image !== undefined) updates['colors.$.image'] = image;
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ success: false, message: 'No valid fields provided to update' });
+  }
+
+  try {
+    const updatedProduct = await Product.findOneAndUpdate(
+      { _id: productId, 'colors.colorId': colorId },
+      { $set: updates },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ success: false, message: 'Product or color not found' });
+    }
+
+    res.status(200).json({ success: true, data: updatedProduct });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -304,6 +332,7 @@ module.exports = {
   createProduct,
   getProductById,
   updateProduct,
+  updateProductColor,
   deleteProduct,
   getProducts,
   getAdminProducts,
