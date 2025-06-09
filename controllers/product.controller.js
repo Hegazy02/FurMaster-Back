@@ -114,9 +114,6 @@ const updateProductColor = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    console.log('Product ID:', productId);
-    console.log('variantId:', variantId);
-    console.log('Available color IDs:', product.colors.map(c => c._id.toString()));
 
     const updatedProduct = await Product.findOneAndUpdate(
       { _id: productId, 'colors._id': variantId },
@@ -310,7 +307,6 @@ const getAdminProducts = async (req, res) => {
       .sort(sort)
       .skip(skip)
       .limit(limit);
-    console.log("products");
 
     const formattedProducts = products.map((p) => ({
       _id: p._id,
