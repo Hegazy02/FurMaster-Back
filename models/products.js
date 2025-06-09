@@ -3,8 +3,8 @@ require('./color');
 
 
 const productSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    description: { type: String, required: true },
+    title: { type: String },
+    description: { type: String },
     categoryId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',

@@ -1,17 +1,10 @@
 const Category = require('../models/category');
 const mongoose = require('mongoose');
 const Joi = require('joi');
+const {categorySchema,updateCategorySchema} = require("../validators/product.validation.js")
 
 
-const categorySchema = Joi.object({
-  name: Joi.string().min(3).max(30).required(),
-  image: Joi.string().uri().required()
-});
 
-const categoryUpdateSchema = Joi.object({
-  name: Joi.string().min(3).max(30),
-  image: Joi.string().uri()
-});
 
 
 const getCategory = async (req, res) => {
@@ -105,7 +98,7 @@ const deleteCategory = async (req, res) => {
 };
 
 const updateCategory = async (req, res) => {
-  const { error } = categoryUpdateSchema.validate(req.body);
+  const { error } = updateCategorySchema.validate(req.body);
   if (error) {
     return res.status(400).json({
       success: false,
