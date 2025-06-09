@@ -1,4 +1,6 @@
 const express = require("express");
+const upload = require("../middlewares/uploadCloudinary");
+
 const router = express.Router();
 const {
   createProduct,
@@ -14,7 +16,7 @@ router.get("/products", getProducts);
 router.get("/products/:id", getProductById);
 //admin
 router.get("/admin/products", getAdminProducts);
-router.post("/admin/products", createProduct);
+router.post("/admin/products", upload.any(), createProduct);
 router.patch("/admin/products/:id", updateProduct);
 router.patch('/admin/products/:id/color', updateProductColor);
 router.delete("/admin/products/:id", deleteProduct);

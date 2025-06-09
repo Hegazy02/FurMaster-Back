@@ -19,6 +19,11 @@ const createProduct = async (req, res) => {
     });
   }
   try {
+    const images = req.files.map((file) => file.path);
+    images.forEach((image, index) => {
+      req.body.colors[index].image = image;
+    });
+
     const product = new Product(req.body);
     const savedProduct = await product.save();
     res.status(201).json({ success: true, data: savedProduct });
@@ -109,9 +114,6 @@ const updateProductColor = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    console.log('Product ID:', productId);
-    console.log('variantId:', variantId);
-    console.log('Available color IDs:', product.colors.map(c => c._id.toString()));
 
     const updatedProduct = await Product.findOneAndUpdate(
       { _id: productId, 'colors._id': variantId },
@@ -217,7 +219,7 @@ const getProducts = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: formattedProducts,
+      data: products,
       pagination: {
         total,
         page: Number(page),
@@ -295,7 +297,6 @@ const getAdminProducts = async (req, res) => {
       default:
         sort = {};
     }
-    console.log("filter", filter);
 
     const total = await Product.countDocuments(filter);
 
@@ -320,6 +321,7 @@ const getAdminProducts = async (req, res) => {
       },
       colors: p.colors.map((c) => ({
         _id: c._id,
+        colorId: c.colorId?._id,
         name: c.colorId?.name,
         hex: c.colorId?.hex,
         stock: c.stock,
