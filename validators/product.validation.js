@@ -41,12 +41,12 @@ const updateProductSchema = Joi.object({
 });
 
 const updateProductColorSchema = Joi.object({
-  colorId: Joi.string().hex().length(24).required(),
-  newColorId: Joi.string().hex().length(24),
-  stock: Joi.number().integer().min(0),
-  image: Joi.string().uri()
+    variantId: Joi.string().hex().length(24).required(),
+    colorId: Joi.string().hex().length(24),
+    stock: Joi.number().integer().min(0),
+    image: Joi.string().uri()
 });
 
 
 
-module.exports = { productSchema, updateProductSchema , updateProductColorSchema}
+module.exports = { productSchema, updateProductSchema, updateProductColorSchema }

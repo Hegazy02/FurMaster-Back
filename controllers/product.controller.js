@@ -86,15 +86,16 @@ const updateProductColor = async (req, res) => {
   if (error) {
     return res.status(400).json({ success: false, message: error.details[0].message });
   }
-  const { colorId, newColorId, stock, image } = req.body;
+
+  const { variantId, colorId, stock, image } = req.body;
   const productId = req.params.id;
 
-  if (!colorId) {
-    return res.status(400).json({ success: false, message: 'colorId is required to find the color in product' });
+  if (!variantId) {
+    return res.status(400).json({ success: false, message: 'variantId is required to find the color variant' });
   }
 
   const updates = {};
-  if (newColorId) updates['colors.$.colorId'] = newColorId;
+  if (colorId) updates['colors.$.colorId'] = colorId;
   if (stock !== undefined) updates['colors.$.stock'] = stock;
   if (image !== undefined) updates['colors.$.image'] = image;
 
@@ -103,14 +104,23 @@ const updateProductColor = async (req, res) => {
   }
 
   try {
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    console.log('Product ID:', productId);
+    console.log('variantId:', variantId);
+    console.log('Available color IDs:', product.colors.map(c => c._id.toString()));
+
     const updatedProduct = await Product.findOneAndUpdate(
-      { _id: productId, 'colors.colorId': colorId },
+      { _id: productId, 'colors._id': variantId },
       { $set: updates },
       { new: true }
     );
 
     if (!updatedProduct) {
-      return res.status(404).json({ success: false, message: 'Product or color not found' });
+      return res.status(404).json({ success: false, message: 'Product or variant not found' });
     }
 
     res.status(200).json({ success: true, data: updatedProduct });
@@ -118,6 +128,7 @@ const updateProductColor = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 
 const deleteProduct = async (req, res) => {
@@ -308,7 +319,7 @@ const getAdminProducts = async (req, res) => {
         name: p.categoryId?.name,
       },
       colors: p.colors.map((c) => ({
-        _id: c.colorId?._id,
+        _id: c._id,
         name: c.colorId?.name,
         hex: c.colorId?.hex,
         stock: c.stock,
