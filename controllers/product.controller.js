@@ -5,10 +5,8 @@ const Product = require("../models/products.js");
 const {
   productSchema,
   updateProductSchema,
-  updateProductColorSchema
-} = require("../validators/product.validation.js")
-
-
+  updateProductColorSchema,
+} = require("../validators/product.validation.js");
 
 const createProduct = async (req, res) => {
   const { error } = productSchema.validate(req.body);
@@ -52,19 +50,20 @@ const getProductById = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Product not found" });
     }
+    const formatedProduct = derivedDetailedProduct(product);
 
-    res.status(200).json({ success: true, data: product });
+    res.status(200).json({ success: true, data: formatedProduct });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-
-
 const updateProduct = async (req, res) => {
   const { error } = updateProductSchema.validate(req.body);
   if (error) {
-    return res.status(400).json({ success: false, message: error.details[0].message });
+    return res
+      .status(400)
+      .json({ success: false, message: error.details[0].message });
   }
 
   try {
@@ -75,7 +74,9 @@ const updateProduct = async (req, res) => {
     );
 
     if (!updatedProduct) {
-      return res.status(404).json({ success: false, message: 'Product not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
 
     return res.status(200).json({ success: true, data: updatedProduct });
@@ -84,45 +85,53 @@ const updateProduct = async (req, res) => {
   }
 };
 
-
-
 const updateProductColor = async (req, res) => {
   const { error } = updateProductColorSchema.validate(req.body);
   if (error) {
-    return res.status(400).json({ success: false, message: error.details[0].message });
+    return res
+      .status(400)
+      .json({ success: false, message: error.details[0].message });
   }
 
   const { variantId, colorId, stock, image } = req.body;
   const productId = req.params.id;
 
   if (!variantId) {
-    return res.status(400).json({ success: false, message: 'variantId is required to find the color variant' });
+    return res.status(400).json({
+      success: false,
+      message: "variantId is required to find the color variant",
+    });
   }
 
   const updates = {};
-  if (colorId) updates['colors.$.colorId'] = colorId;
-  if (stock !== undefined) updates['colors.$.stock'] = stock;
-  if (image !== undefined) updates['colors.$.image'] = image;
+  if (colorId) updates["colors.$.colorId"] = colorId;
+  if (stock !== undefined) updates["colors.$.stock"] = stock;
+  if (image !== undefined) updates["colors.$.image"] = image;
 
   if (Object.keys(updates).length === 0) {
-    return res.status(400).json({ success: false, message: 'No valid fields provided to update' });
+    return res
+      .status(400)
+      .json({ success: false, message: "No valid fields provided to update" });
   }
 
   try {
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
 
-
     const updatedProduct = await Product.findOneAndUpdate(
-      { _id: productId, 'colors._id': variantId },
+      { _id: productId, "colors._id": variantId },
       { $set: updates },
       { new: true }
     );
 
     if (!updatedProduct) {
-      return res.status(404).json({ success: false, message: 'Product or variant not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product or variant not found" });
     }
 
     res.status(200).json({ success: true, data: updatedProduct });
@@ -130,8 +139,6 @@ const updateProductColor = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
 
 const deleteProduct = async (req, res) => {
   try {
@@ -308,26 +315,7 @@ const getAdminProducts = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    const formattedProducts = products.map((p) => ({
-      _id: p._id,
-      title: p.title,
-      price: p.price,
-      offerPrice: p.offerPrice,
-      rating: p.rating,
-      ratingCounter: p.ratingCounter,
-      category: {
-        _id: p.categoryId?._id,
-        name: p.categoryId?.name,
-      },
-      colors: p.colors.map((c) => ({
-        _id: c._id,
-        colorId: c.colorId?._id,
-        name: c.colorId?.name,
-        hex: c.colorId?.hex,
-        stock: c.stock,
-        image: c.image,
-      })),
-    }));
+    const formattedProducts = products.map((p) => derivedDetailedProduct(p));
 
     res.status(200).json({
       success: true,
@@ -350,3 +338,26 @@ module.exports = {
   getProducts,
   getAdminProducts,
 };
+function derivedDetailedProduct(p) {
+  return {
+    _id: p._id,
+    title: p.title,
+    description: p.description,
+    price: p.price,
+    offerPrice: p.offerPrice,
+    rating: p.rating,
+    ratingCounter: p.ratingCounter,
+    category: {
+      _id: p.categoryId?._id,
+      name: p.categoryId?.name,
+    },
+    colors: p.colors.map((c) => ({
+      _id: c._id,
+      colorId: c.colorId?._id,
+      name: c.colorId?.name,
+      hex: c.colorId?.hex,
+      stock: c.stock,
+      image: c.image,
+    })),
+  };
+}

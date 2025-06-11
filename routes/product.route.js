@@ -17,7 +17,7 @@ router.get("/products/:id", getProductById);
 //admin
 router.get("/admin/products", getAdminProducts);
 router.post("/admin/products", upload.any(), createProduct);
-router.patch("/admin/products/:id", updateProduct);
+router.patch("/admin/products/:id", upload.any(),updateProduct);
 router.patch('/admin/products/:id/color', updateProductColor);
 router.delete("/admin/products/:id", deleteProduct);
 module.exports = router;

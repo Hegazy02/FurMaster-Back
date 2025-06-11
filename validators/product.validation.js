@@ -24,19 +24,9 @@ const updateProductSchema = Joi.object({
     title: Joi.string().min(3).max(200),
     description: Joi.string().min(10).max(1000),
     categoryId: Joi.string().hex().length(24),
-    ratingCounter: Joi.number().integer().min(0),
-    rating: Joi.number().min(0).max(5),
     price: Joi.number().min(0),
     offerPrice: Joi.number().min(0),
-    colors: Joi.array()
-        .items(
-            Joi.object({
-                colorId: Joi.string().hex().length(24),
-                stock: Joi.number().integer().min(0),
-                image: Joi.string().uri(),
-            })
-        )
-        .optional(),
+
 
 });
 
