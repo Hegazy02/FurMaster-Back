@@ -14,6 +14,7 @@ const productSchema = new mongoose.Schema({
   price: Number,
   offerPrice: Number,
   createdAt: { type: Date, default: Date.now },
+  isDeleted: { type: Boolean, default: false },
   colors: [
     {
       colorId: {
