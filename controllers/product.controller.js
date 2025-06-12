@@ -1,11 +1,8 @@
 const mongoose = require("mongoose");
 const Product = require("../models/products.js");
-// const Category = require('../models/category.js');
-// const Color = require('../models/color.js');
 const {
   productSchema,
   updateProductSchema,
-  updateProductColorSchema,
 } = require("../validators/product.validation.js");
 
 const createProduct = async (req, res) => {
@@ -82,61 +79,6 @@ const updateProduct = async (req, res) => {
     return res.status(200).json({ success: true, data: updatedProduct });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-const updateProductColor = async (req, res) => {
-  const { error } = updateProductColorSchema.validate(req.body);
-  if (error) {
-    return res
-      .status(400)
-      .json({ success: false, message: error.details[0].message });
-  }
-
-  const { variantId, colorId, stock, image } = req.body;
-  const productId = req.params.id;
-
-  if (!variantId) {
-    return res.status(400).json({
-      success: false,
-      message: "variantId is required to find the color variant",
-    });
-  }
-
-  const updates = {};
-  if (colorId) updates["colors.$.colorId"] = colorId;
-  if (stock !== undefined) updates["colors.$.stock"] = stock;
-  if (image !== undefined) updates["colors.$.image"] = image;
-
-  if (Object.keys(updates).length === 0) {
-    return res
-      .status(400)
-      .json({ success: false, message: "No valid fields provided to update" });
-  }
-
-  try {
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Product not found" });
-    }
-
-    const updatedProduct = await Product.findOneAndUpdate(
-      { _id: productId, "colors._id": variantId },
-      { $set: updates },
-      { new: true }
-    );
-
-    if (!updatedProduct) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Product or variant not found" });
-    }
-
-    res.status(200).json({ success: true, data: updatedProduct });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -329,15 +271,6 @@ const getAdminProducts = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-module.exports = {
-  createProduct,
-  getProductById,
-  updateProduct,
-  updateProductColor,
-  deleteProduct,
-  getProducts,
-  getAdminProducts,
-};
 function derivedDetailedProduct(p) {
   return {
     _id: p._id,
@@ -361,3 +294,12 @@ function derivedDetailedProduct(p) {
     })),
   };
 }
+
+module.exports = {
+  createProduct,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+  getProducts,
+  getAdminProducts,
+};

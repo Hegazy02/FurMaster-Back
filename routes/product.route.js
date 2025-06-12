@@ -6,7 +6,6 @@ const {
   createProduct,
   getProductById,
   updateProduct,
-  updateProductColor,
   deleteProduct,
   getProducts,
   getAdminProducts,
@@ -17,7 +16,6 @@ router.get("/products/:id", getProductById);
 //admin
 router.get("/admin/products", getAdminProducts);
 router.post("/admin/products", upload.any(), createProduct);
-router.patch("/admin/products/:id", upload.any(),updateProduct);
-router.patch('/admin/products/:id/color', updateProductColor);
+router.patch("/admin/products/:id", upload.any(), updateProduct);
 router.delete("/admin/products/:id", deleteProduct);
 module.exports = router;

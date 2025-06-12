@@ -16,6 +16,7 @@ const {
 const productsRoutes = require("./routes/product.route.js");
 const categoryRoutes = require("./routes/category.route.js");
 const colorRoutes = require("./routes/color.route.js");
+const variantRoutes = require("./routes/product_variant.route.js");
 
 app.use(morgan("dev"));
 app.use(express.json());
@@ -50,7 +51,8 @@ app.use("/", productsRoutes);
 app.use("/", categoryRoutes);
 //colors routes
 app.use("/colors",colorRoutes);
-
+//variant routes
+app.use("/admin/products",variantRoutes);
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err);
   const statusCode = err.statusCode || 500;
