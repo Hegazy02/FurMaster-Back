@@ -86,8 +86,8 @@ const deleteProductVariant = async (req, res, next) => {
     const productId = req.params.id;
     const variantId = req.params.variantId;
     const updatedProduct = await Product.findOneAndUpdate(
-      { _id: productId },
-      { $pull: { colors: { _id: variantId } } },
+      { _id: productId, "colors._id": variantId },
+      { $set: { "colors.$.isDeleted": new Date() } },
       { new: true }
     );
     if (!updatedProduct) throw new AppError("Product not found", 404);

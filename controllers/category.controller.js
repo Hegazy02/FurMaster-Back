@@ -1,13 +1,7 @@
-const Category = require('../models/category');
-const mongoose = require('mongoose');
-const Product = require('../models/products'); 
-
-const Joi = require('joi');
-const {
-  categorySchema,
-  categoryUpdateSchema,
-} = require("../validators/product.validation.js");
-
+const Category = require("../models/category");
+const mongoose = require("mongoose");
+const Joi = require("joi");
+const { updateCategorySchema, categorySchema } = require("../validators/category.validation");
 
 const getCategory = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -55,25 +49,6 @@ const getCategoryById = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-const getProductsByCategoryId = async (req, res) => {
-  try {
-    const products = await Product.find({ categoryId: req.params.id }).populate('categoryId');
-    
-    if (!products || products.length === 0) {
-      return res.status(404).json({ success: false, message: "No products found for this category" });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: products,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-
 
 const createCategory = async (req, res) => {
   const { error } = categorySchema.validate(req.body);
@@ -160,4 +135,10 @@ const updateCategory = async (req, res) => {
   }
 };
 
-module.exports = { createCategory, deleteCategory, getCategory, getCategoryById, updateCategory, getProductsByCategoryId }
+module.exports = {
+  createCategory,
+  deleteCategory,
+  getCategory,
+  getCategoryById,
+  updateCategory,
+};
