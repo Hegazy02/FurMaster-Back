@@ -4,6 +4,8 @@ const {
   productSchema,
   updateProductSchema,
 } = require("../validators/product.validation.js");
+const AppError = require("../utils/appError");
+const { productsPipeline, productPipeline } = require("../utils/product");
 
 const createProduct = async (req, res, next) => {
   const { error } = productSchema.validate(req.body);
@@ -30,16 +32,22 @@ const getProductById = async (req, res, next) => {
     throw new AppError("Invalid ID", 400);
 
   try {
-    const product = await Product.findById(id)
-      .populate("categoryId")
-      .populate("colors.colorId");
-
-    if (!product || product.isDeleted)
+    const products = await Product.aggregate(
+      productPipeline(id, [
+        "title",
+        "price",
+        "offerPrice",
+        "image",
+        "rating",
+        "ratingCounter",
+        "category",
+        "colors",
+      ])
+    );
+    if (products.length == 0 || products[0].isDeleted)
       throw new AppError("Product not found", 404);
 
-    const formatedProduct = derivedDetailedProduct(product);
-
-    res.status(200).json({ success: true, data: formatedProduct });
+    res.status(200).json({ success: true, data: products[0] });
   } catch (error) {
     next(error);
   }
@@ -140,20 +148,18 @@ const getProducts = async (req, res) => {
     }
 
     const total = await Product.countDocuments(filter);
-
-    const products = await Product.find(filter)
-      .select("title price colors ratingCounter")
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-
-    const formattedProducts = products.map((p) => ({
-      _id: p._id,
-      title: p.title,
-      price: p.price,
-      image: p.colors && p.colors.length > 0 ? p.colors[0].image : null,
-      ratingCounter: p.ratingCounter,
-    }));
+    const products = await Product.aggregate(
+      productsPipeline(filter, skip, limit, sort, [
+        "title",
+        "price",
+        "offerPrice",
+        "image",
+        "rating",
+        "ratingCounter",
+        "category",
+        "colors",
+      ])
+    );
 
     res.status(200).json({
       success: true,
@@ -181,7 +187,9 @@ const getAdminProducts = async (req, res) => {
       page = 1,
       limit = 10,
     } = req.query;
+
     const skip = (page - 1) * limit;
+    // const filter = {};
     const filter = { isDeleted: false };
 
     if (title) {
@@ -209,7 +217,7 @@ const getAdminProducts = async (req, res) => {
       };
     }
 
-    let sort = {};
+    let sort = { createdAt: -1 };
 
     switch (sortBy) {
       case "price_asc":
@@ -232,21 +240,29 @@ const getAdminProducts = async (req, res) => {
         break;
       case "title_desc":
         sort = { title: -1 };
+      case "out_of_stock":
+        filter["colors"] = {
+          $not: {
+            $elemMatch: { stock: { $gte: 1 } },
+          },
+        };
       default:
-        sort = {};
+        console.log("Default case");
     }
 
     const total = await Product.countDocuments(filter);
-
-    const products = await Product.find(filter)
-      .select("title price offerPrice rating ratingCounter colors categoryId")
-      .populate("colors.colorId")
-      .populate("categoryId")
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-
-    const formattedProducts = products.map((p) => derivedDetailedProduct(p));
+    const products = await Product.aggregate(
+      productsPipeline(filter, skip, limit, sort, [
+        "title",
+        "price",
+        "offerPrice",
+        "image",
+        "rating",
+        "ratingCounter",
+        "category",
+        "colors",
+      ])
+    );
 
     res.status(200).json({
       success: true,
@@ -254,35 +270,12 @@ const getAdminProducts = async (req, res) => {
       total,
       page: Number(page),
       totalPages: Math.ceil(total / limit),
-      data: formattedProducts,
+      data: products,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-function derivedDetailedProduct(p) {
-  return {
-    _id: p._id,
-    title: p.title,
-    description: p.description,
-    price: p.price,
-    offerPrice: p.offerPrice,
-    rating: p.rating,
-    ratingCounter: p.ratingCounter,
-    category: {
-      _id: p.categoryId?._id,
-      name: p.categoryId?.name,
-    },
-    colors: p.colors.map((c) => ({
-      _id: c._id,
-      colorId: c.colorId?._id,
-      name: c.colorId?.name,
-      hex: c.colorId?.hex,
-      stock: c.stock,
-      image: c.image,
-    })),
-  };
-}
 
 module.exports = {
   createProduct,
