@@ -1,97 +1,89 @@
 const mongoose = require("mongoose");
 const Product = require("../models/products.js");
-// const Category = require('../models/category.js');
-// const Color = require('../models/color.js');
 const {
   productSchema,
-  productUpdateSchema,
+  updateProductSchema,
 } = require("../validators/product.validation.js");
 
-
-
-
-const createProduct = async (req, res) => {
+const createProduct = async (req, res, next) => {
   const { error } = productSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.details[0].message,
-    });
-  }
+  if (error) throw new AppError(error.message, 400);
+
   try {
+    const images = req.files.map((file) => file.path);
+    images.forEach((image, index) => {
+      req.body.colors[index].image = image;
+    });
+
     const product = new Product(req.body);
     const savedProduct = await product.save();
     res.status(201).json({ success: true, data: savedProduct });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-const getProductById = async (req, res) => {
+const getProductById = async (req, res, next) => {
   const id = req.params.id;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid product ID format",
-    });
-  }
+  if (!mongoose.Types.ObjectId.isValid(id))
+    throw new AppError("Invalid ID", 400);
 
   try {
     const product = await Product.findById(id)
       .populate("categoryId")
       .populate("colors.colorId");
 
-    if (!product) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Product not found" });
-    }
+    if (!product || product.isDeleted)
+      throw new AppError("Product not found", 404);
 
-    res.status(200).json({ success: true, data: product });
+    const formatedProduct = derivedDetailedProduct(product);
+
+    res.status(200).json({ success: true, data: formatedProduct });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 const updateProduct = async (req, res) => {
-  const { error } = productUpdateSchema.validate(req.body);
+  const { error } = updateProductSchema.validate(req.body);
   if (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.details[0].message,
-    });
+    return res
+      .status(400)
+      .json({ success: false, message: error.details[0].message });
   }
+
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      { $set: req.body },
       { new: true }
     );
+
     if (!updatedProduct) {
       return res
         .status(404)
         .json({ success: false, message: "Product not found" });
     }
-    res.status(200).json({ success: true, data: updatedProduct });
+
+    return res.status(200).json({ success: true, data: updatedProduct });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
-const deleteProduct = async (req, res) => {
+const deleteProduct = async (req, res, next) => {
   try {
-    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
-    if (!deletedProduct) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Product not found" });
-    }
+    const deletedProduct = await Product.findByIdAndUpdate(req.params.id, {
+      $set: { isDeleted: true },
+    });
+    if (!deletedProduct) throw new AppError("Product not found", 404);
+
     res
       .status(200)
       .json({ success: true, message: "Product deleted successfully" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -108,7 +100,7 @@ const getProducts = async (req, res) => {
     } = req.query;
     const limit = 10;
     const skip = (page - 1) * limit;
-    const filter = {};
+    const filter = { isDeleted: false };
 
     if (key) {
       filter.$or = [
@@ -165,7 +157,7 @@ const getProducts = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: formattedProducts,
+      data: products,
       pagination: {
         total,
         page: Number(page),
@@ -177,6 +169,120 @@ const getProducts = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+const getAdminProducts = async (req, res) => {
+  try {
+    const {
+      title = "",
+      minPrice,
+      maxPrice,
+      categoryId,
+      colorId,
+      sortBy = "createdAt_desc",
+      page = 1,
+      limit = 10,
+    } = req.query;
+    const skip = (page - 1) * limit;
+    const filter = { isDeleted: false };
+
+    if (title) {
+      filter.$or = [{ title: { $regex: title, $options: "i" } }];
+    }
+
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    if (categoryId) {
+      filter.categoryId = categoryId;
+    }
+
+    if (colorId) {
+      filter["colors.colorId"] = colorId;
+    }
+    if (sortBy === "out_of_stock") {
+      filter["colors"] = {
+        $not: {
+          $elemMatch: { stock: { $gte: 1 } },
+        },
+      };
+    }
+
+    let sort = {};
+
+    switch (sortBy) {
+      case "price_asc":
+        sort = { price: 1 };
+        break;
+      case "price_desc":
+        sort = { price: -1 };
+        break;
+      case "popularity":
+        sort = { ratingCounter: -1 };
+        break;
+      case "createdAt_asc":
+        sort = { createdAt: 1 };
+        break;
+      case "createdAt_desc":
+        sort = { createdAt: -1 };
+        break;
+      case "title_asc":
+        sort = { title: 1 };
+        break;
+      case "title_desc":
+        sort = { title: -1 };
+      default:
+        sort = {};
+    }
+
+    const total = await Product.countDocuments(filter);
+
+    const products = await Product.find(filter)
+      .select("title price offerPrice rating ratingCounter colors categoryId")
+      .populate("colors.colorId")
+      .populate("categoryId")
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+
+    const formattedProducts = products.map((p) => derivedDetailedProduct(p));
+
+    res.status(200).json({
+      success: true,
+      message: "Users fetched successfully",
+      total,
+      page: Number(page),
+      totalPages: Math.ceil(total / limit),
+      data: formattedProducts,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+function derivedDetailedProduct(p) {
+  return {
+    _id: p._id,
+    title: p.title,
+    description: p.description,
+    price: p.price,
+    offerPrice: p.offerPrice,
+    rating: p.rating,
+    ratingCounter: p.ratingCounter,
+    category: {
+      _id: p.categoryId?._id,
+      name: p.categoryId?.name,
+    },
+    colors: p.colors.map((c) => ({
+      _id: c._id,
+      colorId: c.colorId?._id,
+      name: c.colorId?.name,
+      hex: c.colorId?.hex,
+      stock: c.stock,
+      image: c.image,
+    })),
+  };
+}
 
 module.exports = {
   createProduct,
@@ -184,4 +290,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getProducts,
+  getAdminProducts,
 };
