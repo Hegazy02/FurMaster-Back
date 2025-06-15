@@ -20,6 +20,7 @@
   "homepage": "https://github.com/Hegazy02/angular_node_backend#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.0",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -31,6 +32,7 @@
     "multer": "^2.0.0",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemon": "^3.1.10",
+    "stripe": "^18.2.1",
     "twilio": "^5.7.0"
   }
 }
