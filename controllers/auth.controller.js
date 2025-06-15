@@ -14,6 +14,10 @@ const sginup = async (req, res, next) => {
   try {
     const { password, ...userObj } = req.body;
 
+    const exists = await User.findOne({ email: userObj.email });
+
+    if (exists) throw new AppError("Email already exists");
+
     const hashedPassword = await bcrypt.hash(password, +process.env.SALT_Round);
 
     const user = await User.create({
@@ -29,7 +33,7 @@ const sginup = async (req, res, next) => {
     const userData = user.toObject();
     delete userData.password;
 
-    res.status(201).json({ token, user: userData });
+    res.status(201).json({ token, data: userData });
   } catch (err) {
     next(err);
   }
@@ -57,7 +61,7 @@ const login = async (req, res, next) => {
     const userData = user.toObject();
     delete userData.password;
 
-    res.send({ token, user: userData });
+    res.send({ token, data: userData });
   } catch (err) {
     next(err);
   }
@@ -120,7 +124,7 @@ const resetPassword = async (req, res, next) => {
     );
     res
       .status(200)
-      .json({ message: "Password reset successfully", user: userData, token });
+      .json({ message: "Password reset successfully", data: userData, token });
   } catch (err) {
     next(err);
   }
