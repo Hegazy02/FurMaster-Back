@@ -22,6 +22,10 @@ const {
   verifyAdmin,
 } = require("./middlewares/auth.middleware.js");
 const productsRoutes = require("./routes/product.route.js");
+const categoryRoutes = require("./routes/category.route.js");
+const colorRoutes = require("./routes/color.route.js");
+const variantRoutes = require("./routes/product_variant.route.js");
+
 app.use(morgan("dev"));
 app.use(cors());
 
@@ -29,9 +33,9 @@ app.use(cors());
 
 app.use((req, res, next) => {
   if (req.originalUrl === '/api/stripe/webhook') {
-    next();                            
+    next();
   } else {
-    express.json()(req, res, next); 
+    express.json()(req, res, next);
   }
 });
 
@@ -41,26 +45,13 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => {
     console.error("Failed to connect to MongoDB", err);
-    process.exit(1); 
+    process.exit(1);
   });
 
 
 
 //stripe routes
 app.use('/api/stripe', stripeRoutes);
-
-
-
-
-
-
-
-// for testing
-app.use((req, res, next) => {
-  req.user = { id: "68337784a33bebac73b5f899" };
-  next();
-});
-
 
 
 const cartRoutes = require('./routes/cart.route.js');
@@ -74,11 +65,12 @@ app.get("/", (req, res) => {
 //auh routs
 app.use("/auth", authRoutes);
 //auth middlewares
-// app.use(verifyToken);
-// app.use("/admin", verifyAdmin);
+app.use(verifyToken);
+app.use("/admin", verifyAdmin);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
+app.use('/api/v1/orders', ordersRoutes);
 app.use("/", userRoutes);
 //order routes
 app.use('/api/orders', ordersRoutes);
@@ -87,7 +79,12 @@ app.use('/api/orders', ordersRoutes);
 app.use("/", bannerRoutes);
 //products routes
 app.use("/", productsRoutes);
-
+//categories routes
+app.use("/", categoryRoutes);
+//colors routes
+app.use("/colors", colorRoutes);
+//variant routes
+app.use("/admin/products", variantRoutes);
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err);
   const statusCode = err.statusCode || 500;
