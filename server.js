@@ -9,6 +9,7 @@ const paymentMethodRoutes = require("./routes/payment_method.route.js");
 const userRoutes = require("./routes/user.route.js");
 const authRoutes = require("./routes/auth.route.js");
 const bannerRoutes = require("./routes/banner.route.js");
+const ordersRoutes = require('./routes/order');
 const {
   verifyToken,
   verifyAdmin,
@@ -41,6 +42,7 @@ app.use("/admin", verifyAdmin);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
+app.use('/api/v1/orders', ordersRoutes);
 app.use("/", userRoutes);
 
 //banner routes
