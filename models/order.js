@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+/*const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
   orderItems: [{
@@ -103,4 +103,33 @@ orderSchema.virtual('itemsCount').get(function() {
   return this.orderItems.length;
 });
 
-exports.Order = mongoose.model('Order', orderSchema);
+exports.Order = mongoose.model('Order', orderSchema);*/
+const mongoose = require('mongoose');
+
+const orderSchema = new mongoose.Schema({
+  sessionId: String,
+  customerEmail: String,
+  amountTotal: Number,
+  currency: String,
+  status: String, 
+  cardLast4: String,
+  cardBrand: String,
+  isPaid: String,
+   products: [
+    {
+      name: String,
+      quantity: Number,
+      unitPrice: Number,
+      totalPrice: Number, 
+          productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    variantId: { type: mongoose.Schema.Types.ObjectId }, 
+
+    }
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+module.exports = mongoose.model('Order', orderSchema);

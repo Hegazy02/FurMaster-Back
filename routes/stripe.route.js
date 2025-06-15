@@ -22,6 +22,7 @@ const { products } = req.body;
       currency: 'usd',
       product_data: {
         name: product.name,
+  images: product.image ? [product.image] : [],
       },
       unit_amount: product.price * 100, 
     },

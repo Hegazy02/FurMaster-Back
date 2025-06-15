@@ -39,8 +39,8 @@ const charge = paymentIntent?.charges?.data?.[0] || {};
         customerEmail: session.customer_email,
         amountTotal: session.amount_total / 100,
         currency: session.currency,
-      orderStatus:'pending',
-        status: session.payment_status,
+      status:'pending',
+        isPaid: session.payment_status,
           userId: session.client_reference_id, 
         cardLast4: charge?.payment_method_details?.card?.last4 || '',
         cardBrand: charge?.payment_method_details?.card?.brand || '',
@@ -56,7 +56,8 @@ products: products.map(p => {
     quantity,
     totalPrice: unitPrice * quantity,
           productId: p.productId,      
-      variantId: p.variantId,      
+      variantId: p.variantId, 
+      image:p.image,     
   };
 }),
 

@@ -9,70 +9,20 @@ const router = express.Router();
 
 router.get("/cart", async (req, res) => {
     console.log(req.user);
-    const userId = req.user.id;
+    const userId = req.user._id;
     const items = await getCartItems(userId);
     res.send(items);
 });
 
-/*router.post("/cart/:id", async (req, res) => {
-
-    console.log(req.user);
-    const userId = req.user.id;
-
-    const productId = req.params.id;
-const quantity = Number(req.body.quantity);
-if (isNaN(quantity)) {
-  return res.status(400).json({ error: "Quantity must be a valid number" });
-}
-
-
-    const items = await addToCart(userId, productId, quantity);
-    res.send(items);
-});*/
-
-
-/*
-///اخر حاجة
-router.post("/cart/:id", async (req, res) => {
-  try {
-    console.log(req.user);
-    const userId = req.user.id;
-
-    const variantId = req.params.id; // 👈 ده بقى الـ variantId
-    const quantity = Number(req.body.quantity);
-
-    if (isNaN(quantity)) {
-      return res.status(400).json({ error: "Quantity must be a valid number" });
-    }
-
- // ❗نجيب الـ productId اللي جواه الـ variant ده
-const variantObjectId = new mongoose.Types.ObjectId(variantId);
-const product = await Product.findOne({ "colors._id": variantObjectId });
-
-    if (!product) {
-      return res.status(404).json({ error: "Product with this variant not found" });
-    }
-
-    const productId = product._id;
-
-    // ✅ ابعت التلات حاجات المطلوبة: userId, productId, variantId, quantity
-    const items = await addToCart(userId, productId, variantId, quantity);
-    res.send(items);
-    
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Something went wrong", details: err.message });
-  }
-});*/
 
 
 
 router.post("/cart/:id", async (req, res) => {
   try {
     console.log(req.user);
-    const userId = req.user.id; // تأكد إنك حاطط middleware للمصادقة
+    const userId = req.user._id; 
 
-    const variantId = req.params.id; // 👈 ده هو color._id
+    const variantId = req.params.id; 
     const { productId, quantity } = req.body;
 
     if (!productId || isNaN(quantity)) {
