@@ -14,6 +14,7 @@ const UsersSchema = new Schema({
   address: { type: String },
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
+  role: { type: String, default: "user" },
 });
 
 module.exports = mongoose.model("User", UsersSchema);
