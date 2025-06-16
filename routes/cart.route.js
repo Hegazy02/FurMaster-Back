@@ -14,9 +14,6 @@ router.get("/cart", async (req, res) => {
     res.send(items);
 });
 
-
-
-
 router.post("/cart/:id", async (req, res) => {
   try {
     console.log(req.user);
@@ -44,7 +41,7 @@ router.post("/cart/:id", async (req, res) => {
       );
 
       if (existingItem) {
-  existingItem.quantity = quantity; // 👈 استبدلي += ب =
+  existingItem.quantity = quantity;
       } else {
         cart.items.push({ productId, variantId, quantity });
       }
@@ -57,9 +54,6 @@ router.post("/cart/:id", async (req, res) => {
     res.status(500).json({ status: "failed", message: err.message });
   }
 });
-
-
-
 
 
 router.delete("/cart/:variantId", async (req, res) => {
@@ -75,7 +69,6 @@ router.delete("/cart/:variantId", async (req, res) => {
 });
 
 
-////لسه متجربش
 router.delete("/cart", async (req, res) => {
   const userId = req.user.id;
 

@@ -74,10 +74,10 @@ app.use("/auth", authRoutes);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
-app.use('/api/v1/orders', ordersRoutes);
+//app.use('/api/v1/orders', ordersRoutes);
 app.use("/", userRoutes);
 //order routes
-app.use('/api/orders', ordersRoutes);
+app.use('/api', ordersRoutes);
 
 //banner routes
 app.use("/", bannerRoutes);

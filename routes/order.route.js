@@ -7,14 +7,22 @@ const { verifyToken, verifyAdmin } = require('../middlewares/auth.middleware');
 
 
 
-router.get('/', async (req, res) => {
+router.get('/orders', async (req, res) => {
   const { page = 1, limit = 10, status = '', sort = '-createdAt',
     minPrice,
     maxPrice,
     dateFrom,
     dateTo } = req.query;
+ /*const query = {
+    userId: req.user._id  
+  };*/
 
   const query = {};
+  //if (userId) query.userId = userId;
+/*const userId = req.query.userId || req.body?.userId;
+if (userId) {
+  query.userId = userId;
+}*/
 
   if (status) query.status = status;
 

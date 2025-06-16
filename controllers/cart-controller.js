@@ -1,72 +1,6 @@
 const Cart =require("../models/cart");
 require('../models/color');   
 
-/*async function addToCart(userId,productId,quantity ){
-        console.log(`Executing addToCart for userId: ${userId} with quantity: ${quantity}`); // <--- أضف هذا السطر
-
-      quantity = Number(quantity);
-  if (isNaN(quantity)) {
-    throw new Error('Invalid quantity');
-  }
-
-    let product =await Cart.findOne({userId:userId,productId:productId});
-    
-    if(product){
-
-        if(product.quantity+quantity <=0){
-await removeFromCart(userId,productId);
-        }
-        else{   
-        await Cart.findByIdAndUpdate(product._id,{
-            quantity:product.quantity + quantity,
-        });}
-    }else{
-        product=new Cart({
-          userId:userId,
-            productId:productId,
-            quantity:quantity,
-
-        });
-        await product.save();
-    }
-    return await getCartItems(userId);
-}
-async function removeFromCart(userId,productId) {
-    await Cart.findOneAndDelete({userId:userId,productId:productId});
-    
-}*/
-
-/*async function addToCart(userId, productId, variantId, quantity) {
-  console.log(`Executing addToCart for userId: ${userId} with quantity: ${quantity}`);
-
-  quantity = Number(quantity);
-  if (isNaN(quantity)) {
-    throw new Error('Invalid quantity');
-  }
-
-  // ✅ دور على منتج بنفس المنتج ونفس الـ variant في الكارت
-  let product = await Cart.findOne({ userId, productId, variantId });
-
-  if (product) {
-    if (product.quantity + quantity <= 0) {
-      await removeFromCart(userId, productId, variantId);
-    } else {
-      await Cart.findByIdAndUpdate(product._id, {
-        quantity: product.quantity + quantity,
-      });
-    }
-  } else {
-    product = new Cart({
-      userId,
-      productId,
-      variantId, // ✅ أضفنا الـ variantId هنا
-      quantity,
-    });
-    await product.save();
-  }
-
-  return await getCartItems(userId);
-}*/
 
 
 async function addToCart(req, res) {
@@ -100,10 +34,6 @@ async function addToCart(req, res) {
 
 
 
-
-
-
-
 async function removeFromCart(userId, variantId) {
   return await Cart.findOneAndUpdate(
     { userId },
@@ -114,71 +44,12 @@ async function removeFromCart(userId, variantId) {
 
 
 
-
-
-
-
-/*async function getCartItems(userId) {
-  const products = await Cart.find({ userId:userId }).populate("productId");
-
-  return products.map((item) => ({
-    _id: item._id,
-    product: item.productId, // بيانات المنتج
-    quantity: item.quantity, // الكمية
-  }));
-  
-
-}*/
-
-/*async function getCartItems(userId) {
-  const items = await Cart.find({ userId })
-    .populate({
-      path: "productId",
-populate: {
-      path: 'colors.colorId' // اختياري لو محتاج تفاصيل اللون
-    }
-    });
-
-  return items.map((item) => {
-    const product = item.productId;
-    
-    if (!product) {
-      return {
-        _id: item._id,
-        title: "Unknown Product",
-        price: 0,
-        offerPrice: 0,
-        quantity: item.quantity,
-        image: null,
-        variantId: item.variantId,
-        productId: null,
-      };
-    }
-console.log(product, item.variantId)
-    const variant =
-      product.colors?.find(
-        (color) => color._id.toString() === item.variantId?.toString()
-      ) || {};
-
-    return {
-      _id: item._id,
-      title: product.title,
-      price: product.price,
-      offerPrice: product.offerPrice,
-      quantity: item.quantity,
-      image: variant.image || null,
-      variantId: item.variantId,
-      productId: product._id,
-    };
-  });
-}*/
-
 async function getCartItems(userId) {
   const cart = await Cart.findOne({ userId })
     .populate({
       path: "items.productId",
       populate: {
-        path: "colors.colorId" // لو حابب تجيب بيانات اللون من موديل منفصل
+        path: "colors.colorId"       
       }
     });
 
@@ -221,8 +92,7 @@ async function getCartItems(userId) {
 module.exports={addToCart,removeFromCart,getCartItems};
 
 
-
-///لسه متجربش
+//clear cart
   /*const clearCart = async (userId) => {
-  return await Cart.deleteMany({ user: userId }); // أو حسب اسم الموديل عندك
+  return await Cart.deleteMany({ user: userId }); 
 };*/

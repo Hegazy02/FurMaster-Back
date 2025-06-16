@@ -2,6 +2,8 @@ const Stripe = require('stripe');
 const Order = require('../models/order');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const Cart = require('../models/cart');
+const sendEmail = require('../utils/sendEmail');
+
 
 exports.handleWebhook = async (req, res) => {
   const sig = req.headers['stripe-signature'];
@@ -35,6 +37,7 @@ const charge = paymentIntent?.charges?.data?.[0] || {};
       //const charge = paymentIntent.charges.data[0];
 
       await Order.create({
+
         sessionId: session.id,
         customerEmail: session.customer_email,
         amountTotal: session.amount_total / 100,
@@ -63,6 +66,22 @@ products: products.map(p => {
 
        
       });
+///send email
+await sendEmail({
+  to: session.customer_email,
+  subject: 'Order Confirmation - FurMaster',
+  text: 'Thanks for your order! We are preparing it now.',
+  html: `
+    <h2>Thank you for shopping with us 🛍️</h2>
+    <p>We've received your order and it's being processed.</p>
+    <p><strong>Total:</strong> $${(session.amount_total / 100).toFixed(2)}</p>
+  `,
+});
+
+
+
+
+
       const cart = await Cart.find({ userId: session.client_reference_id });
 console.log('🧾 User cart before deletion:', cart);
 
