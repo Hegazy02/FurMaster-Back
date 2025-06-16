@@ -81,8 +81,8 @@ const sendOTP = async (phoneNumberReceiver) => {
       from: "whatsapp:+14155238886",
       contentSid: "HX229f5a04fd0510ce1b071852155d3e75",
       contentVariables: `{"1":"${otp}"}`,
-      to: "whatsapp:+201223057728",
-      // to: `whatsapp:${phoneNumberReceiver}`,
+      // to: "whatsapp:+201223057728",
+      to: `whatsapp:+2${phoneNumberReceiver}`,
     })
     .then((message) => console.log(message.sid))
     .catch((error) => console.error(error));
@@ -94,11 +94,15 @@ const forgetPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-    if (!user) {
-      return next(new AppError("User not found", 404));
-    }
+    if (!user) throw new AppError("User not found", 404);
+    if (!user.phoneNumber) throw new AppError("User has no phone number", 404);
+
     const otp = await sendOTP(user.phoneNumber);
-    res.status(200).json({ message: "OTP sent successfully", otp });
+    res.status(200).json({
+      message: "OTP sent successfully",
+      otp,
+      lastTwoNumbersOfPhoneNumber: user.phoneNumber.slice(-2),
+    });
   } catch (err) {
     next(err);
   }
