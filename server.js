@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 
 const morgan = require("morgan");
 const mongoose = require("mongoose");
-const stripeRoutes = require('./routes/stripe.route.js');
+const stripeRoutes = require("./routes/stripe.route.js");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,9 +13,8 @@ const paymentMethodRoutes = require("./routes/payment_method.route.js");
 const userRoutes = require("./routes/user.route.js");
 const authRoutes = require("./routes/auth.route.js");
 const bannerRoutes = require("./routes/banner.route.js");
-const ordersRoutes = require('./routes/order.route');
-
-
+const ordersRoutes = require("./routes/order.route");
+const orderRoutes = require("./routes/order.js");
 
 const {
   verifyToken,
@@ -29,16 +28,13 @@ const variantRoutes = require("./routes/product_variant.route.js");
 app.use(morgan("dev"));
 app.use(cors());
 
-
-
 app.use((req, res, next) => {
-  if (req.originalUrl === '/api/stripe/webhook') {
+  if (req.originalUrl === "/api/stripe/webhook") {
     next();
   } else {
     express.json()(req, res, next);
   }
 });
-
 
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -48,19 +44,16 @@ mongoose
     process.exit(1);
   });
 
-
-app.use("/",(req,res,next)=>{
-req.user={_id:"684d86d4fb4975eb669754a8"};
-next()
+app.use("/", (req, res, next) => {
+  req.user = { _id: "684d86d4fb4975eb669754a8", role: "admin" };
+  next();
 });
 
 //stripe routes
-app.use('/api/stripe', stripeRoutes);
+app.use("/api/stripe", stripeRoutes);
 
-
-const cartRoutes = require('./routes/cart.route.js');
+const cartRoutes = require("./routes/cart.route.js");
 app.use("/", cartRoutes);
-
 
 //routes
 app.get("/", (req, res) => {
@@ -77,7 +70,8 @@ app.use("/payment-methods", paymentMethodRoutes);
 //app.use('/api/v1/orders', ordersRoutes);
 app.use("/", userRoutes);
 //order routes
-app.use('/api', ordersRoutes);
+app.use("/api", ordersRoutes);
+app.use("/", orderRoutes);
 
 //banner routes
 app.use("/", bannerRoutes);
