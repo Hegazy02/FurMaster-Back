@@ -8,23 +8,15 @@ const orderSchema = new mongoose.Schema({
   status: String, 
   cardLast4: String,
   cardBrand: String,
-  isPaid: String,
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
+  orderStatus:String,
    products: [
     {
       name: String,
       quantity: Number,
       unitPrice: Number,
-      totalPrice: Number,    
-       image:String,     
-
+      totalPrice: Number, 
           productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     variantId: { type: mongoose.Schema.Types.ObjectId }, 
-
 
     }
   ],
