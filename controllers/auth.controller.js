@@ -14,6 +14,10 @@ const sginup = async (req, res, next) => {
   try {
     const { password, ...userObj } = req.body;
 
+    const exists = await User.findOne({ email: userObj.email });
+
+    if (exists) throw new AppError("Email already exists");
+
     const hashedPassword = await bcrypt.hash(password, +process.env.SALT_Round);
 
     const user = await User.create({
@@ -29,7 +33,7 @@ const sginup = async (req, res, next) => {
     const userData = user.toObject();
     delete userData.password;
 
-    res.status(201).json({ token, user: userData });
+    res.status(201).json({ token, data: userData });
   } catch (err) {
     next(err);
   }
@@ -50,14 +54,14 @@ const login = async (req, res, next) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, role: "user" },
+      { id: user._id, role: user.role },
       process.env.TOKEN_SECRET
     );
 
     const userData = user.toObject();
     delete userData.password;
 
-    res.send({ token, user: userData });
+    res.send({ token, data: userData });
   } catch (err) {
     next(err);
   }
@@ -77,8 +81,8 @@ const sendOTP = async (phoneNumberReceiver) => {
       from: "whatsapp:+14155238886",
       contentSid: "HX229f5a04fd0510ce1b071852155d3e75",
       contentVariables: `{"1":"${otp}"}`,
-      to: "whatsapp:+201223057728",
-      // to: `whatsapp:${phoneNumberReceiver}`,
+      // to: "whatsapp:+201223057728",
+      to: `whatsapp:+2${phoneNumberReceiver}`,
     })
     .then((message) => console.log(message.sid))
     .catch((error) => console.error(error));
@@ -90,11 +94,15 @@ const forgetPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-    if (!user) {
-      return next(new AppError("User not found", 404));
-    }
+    if (!user) throw new AppError("User not found", 404);
+    if (!user.phoneNumber) throw new AppError("User has no phone number", 404);
+
     const otp = await sendOTP(user.phoneNumber);
-    res.status(200).json({ message: "OTP sent successfully", otp });
+    res.status(200).json({
+      message: "OTP sent successfully",
+      otp,
+      lastTwoNumbersOfPhoneNumber: user.phoneNumber.slice(-2),
+    });
   } catch (err) {
     next(err);
   }
@@ -120,7 +128,7 @@ const resetPassword = async (req, res, next) => {
     );
     res
       .status(200)
-      .json({ message: "Password reset successfully", user: userData, token });
+      .json({ message: "Password reset successfully", data: userData, token });
   } catch (err) {
     next(err);
   }
