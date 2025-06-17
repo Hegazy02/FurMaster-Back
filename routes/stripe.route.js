@@ -36,8 +36,9 @@ const { products } = req.body;
       payment_method_types: ['card'],
       mode: 'payment',
       line_items: lineItems,
-      success_url: 'http://localhost:4200/success',
+      success_url: 'http://localhost:4200/success?session_id={CHECKOUT_SESSION_ID}',
       cancel_url: 'http://localhost:4200/cancel',
+
         metadata: {
     products: JSON.stringify(products)
   },
@@ -59,5 +60,6 @@ router.post(
    express.raw({ type: 'application/json' }),
   handleWebhook
 );
+
 
 module.exports = router;

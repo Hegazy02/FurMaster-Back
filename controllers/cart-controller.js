@@ -89,10 +89,11 @@ async function getCartItems(userId) {
   });
 }
 
-module.exports={addToCart,removeFromCart,getCartItems};
-
-
-//clear cart
-  /*const clearCart = async (userId) => {
+ const clearCart = async (userId) => {
   return await Cart.deleteMany({ user: userId }); 
-};*/
+};
+
+module.exports={addToCart,removeFromCart,getCartItems,clearCart};
+
+
+ 

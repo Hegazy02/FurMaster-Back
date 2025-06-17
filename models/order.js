@@ -9,6 +9,7 @@ const orderSchema = new mongoose.Schema({
   cardLast4: String,
   cardBrand: String,
   isPaid: String,
+  orderId:Number,
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
