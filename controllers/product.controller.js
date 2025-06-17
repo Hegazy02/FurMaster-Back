@@ -123,13 +123,17 @@ const getProducts = async (req, res) => {
       if (maxPrice) filter.price.$lte = Number(maxPrice);
     }
 
-    if (categoryId) {
-      filter.categoryId = categoryId;
-    }
+if (categoryId) {
+  const ids = categoryId.split(',');
+  filter.categoryId = { $in: ids.map(id => new mongoose.Types.ObjectId(id)) };
+}
 
-    if (colorId) {
-      filter["colors.colorId"] = colorId;
-    }
+
+   if (colorId) {
+  const colorIds = colorId.split(',').map(id => new mongoose.Types.ObjectId(id));
+  filter["colors.colorId"] = { $in: colorIds };
+}
+
 
     let sort = {};
 
