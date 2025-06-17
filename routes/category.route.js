@@ -15,4 +15,11 @@ router.post("/admin/categories", createCategory);
 router.delete("/admin/categories/:id", deleteCategory);
 router.patch("/admin/categories/:id", updateCategory);
 
+router.get('/categories', getCategory);
+router.get('/categories/:id', getCategoryById); 
+router.post('/admin/categories', createCategory);
+router.delete('/admin/categories/:id', deleteCategory);
+router.patch('/admin/categories/:id', updateCategory);
+
 module.exports = router;
+
