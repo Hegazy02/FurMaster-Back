@@ -24,13 +24,13 @@ router.post("/create-payment-intent", verifyToken, createPaymentIntent);
 
 router.post("/confirm-payment", verifyToken, confirmPayment);
 
-router.post("/", verifyToken, createOrder);
+router.post("/orders", verifyToken, createOrder);
 
-router.get("/", verifyToken, getOrders);
+router.get("/orders", verifyToken, getOrders);
 
-router.get("/:id", verifyToken, getOrder);
+router.get("orders/:id", verifyToken, getOrder);
 
-router.delete("/:id", verifyToken, isAdmin, deleteOrder);
+router.delete("orders/:id", verifyToken, isAdmin, deleteOrder);
 
 router.patch("/admin/orders/:id", updateOrder);
 
