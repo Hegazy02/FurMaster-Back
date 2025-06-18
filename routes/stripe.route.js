@@ -8,13 +8,12 @@ const { handleWebhook } = require("../controllers/stripe.controller");
 const router = express.Router();
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-router.post("/create-checkout-session"),
-  async (req, res) => {
-    if (!req.body || !req.body.products) {
-      return res.status(400).json({ error: "Products data is required" });
-    }
-    const { products } = req.body;
-    const { userId } = req.user._id;
+router.post("/create-checkout-session", async (req, res) => {
+  if (!req.body || !req.body.products) {
+    return res.status(400).json({ error: "Products data is required" });
+  }
+  const { products } = req.body;
+  const { userId } = req.user._id;
 
   const lineItems = products.map((product) => ({
     price_data: {
