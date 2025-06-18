@@ -1,4 +1,3 @@
-// stripe.js
 const express = require('express');
 const Stripe = require('stripe');
 require('dotenv').config();
@@ -60,6 +59,5 @@ router.post(
    express.raw({ type: 'application/json' }),
   handleWebhook
 );
-
 
 module.exports = router;

@@ -90,7 +90,7 @@ async function getCartItems(userId) {
 }
 
  const clearCart = async (userId) => {
-  return await Cart.deleteMany({ user: userId }); 
+  return await Cart.deleteMany({ userId: userId }); 
 };
 
 module.exports={addToCart,removeFromCart,getCartItems,clearCart};

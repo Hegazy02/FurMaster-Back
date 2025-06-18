@@ -4,6 +4,7 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const Cart = require('../models/cart');
 //const sendEmail = require('../utils/sendEmail');
 const Counter = require('../models/counter');
+const Product = require("../models/products.js");
 
 async function getNextOrderNumber() {
   const counter = await Counter.findOneAndUpdate(
@@ -14,6 +15,18 @@ async function getNextOrderNumber() {
   return counter.value;
 }
 
+
+const decreaseProductQuantities = async (products) => {
+  const operations = products.map((item) => ({
+    updateOne: {
+      filter: { _id: item.productId },
+      update: { $inc: { "colors.$[elem].stock": -item.quantity } },
+      arrayFilters: [{ "elem._id": item.variantId }],
+    },
+  }));
+
+  await Product.bulkWrite(operations);
+};
 
 exports.handleWebhook = async (req, res) => {
   const sig = req.headers['stripe-signature'];
@@ -33,6 +46,9 @@ exports.handleWebhook = async (req, res) => {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     console.log('✅ Session completed:', session);
+    
+console.log('📌 Metadata:', session.metadata);
+console.log('👤 client_reference_id:', session.client_reference_id);
 
     const products = JSON.parse(session.metadata?.products || '[]');
       console.log('📦 Products from metadata:', products);
@@ -57,7 +73,7 @@ const orderNumber = await getNextOrderNumber();
           userId: session.client_reference_id, 
         cardLast4: charge?.payment_method_details?.card?.last4 || '',
         cardBrand: charge?.payment_method_details?.card?.brand || '',
-
+              hasStockBeenAdjusted:true,
        
 
 products: products.map(p => {
@@ -76,6 +92,8 @@ products: products.map(p => {
 
        
       });
+      await decreaseProductQuantities(products);
+
 /*///send email
 await sendEmail({
   to: session.customer_email,
@@ -97,7 +115,7 @@ console.log('🧾 User cart before deletion:', cart);
 
 await Cart.deleteMany({ userId: session.client_reference_id });
     } catch (error) {
-      console.error('❌ Error saving order:', error.message);
+console.error('❌ Full error:', error);
     }
   }
 
