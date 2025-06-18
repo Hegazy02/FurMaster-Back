@@ -20,7 +20,7 @@ const updateMe = async (req, res, next) => {
       updateData.image = req.file.path;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(req.user.id, updateData, {
+    const updatedUser = await User.findByIdAndUpdate(req.user._id, updateData, {
       new: true,
     });
 

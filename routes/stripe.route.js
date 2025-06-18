@@ -1,9 +1,9 @@
-const express = require('express');
-const Stripe = require('stripe');
-require('dotenv').config();
-const bodyParser = require('body-parser');
-const Order = require('../models/order.js'); 
-const { handleWebhook } = require('../controllers/stripe.controller');
+const express = require("express");
+const Stripe = require("stripe");
+require("dotenv").config();
+const bodyParser = require("body-parser");
+const Order = require("../models/order.js");
+const { handleWebhook } = require("../controllers/stripe.controller");
 
 const router = express.Router();
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -13,7 +13,7 @@ router.post("/create-checkout-session", async (req, res) => {
     return res.status(400).json({ error: "Products data is required" });
   }
   const { products } = req.body;
-  const { userId } = req.body;
+  const { userId } = req.user._id;
 
   const lineItems = products.map((product) => ({
     price_data: {
@@ -34,15 +34,14 @@ router.post("/create-checkout-session", async (req, res) => {
       payment_method_types: ["card"],
       mode: "payment",
       line_items: lineItems,
-      success_url: 'http://localhost:4200/success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'http://localhost:4200/cancel',
+      success_url:
+        "http://localhost:4200/success?session_id={CHECKOUT_SESSION_ID}",
+      cancel_url: "http://localhost:4200/cancel",
 
-        metadata: {
-    products: JSON.stringify(products)
-  },
-      client_reference_id: userId  
-
-
+      metadata: {
+        products: JSON.stringify(products),
+      },
+      client_reference_id: userId,
     });
 
     res.json({ url: session.url });
