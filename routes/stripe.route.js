@@ -40,7 +40,6 @@ router.post("/create-checkout-session", async (req, res) => {
       metadata: {
         products: JSON.stringify(products),
       },
-      client_reference_id: userId,
     });
 
     res.json({ url: session.url });
