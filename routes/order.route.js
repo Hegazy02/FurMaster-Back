@@ -13,16 +13,11 @@ router.get('/orders', async (req, res) => {
     maxPrice,
     dateFrom,
     dateTo } = req.query;
- /*const query = {
+ const query = {
     userId: req.user._id  
-  };*/
+  };
 
-  const query = {};
-  //if (userId) query.userId = userId;
-/*const userId = req.query.userId || req.body?.userId;
-if (userId) {
-  query.userId = userId;
-}*/
+  
 
   if (status) query.status = status;
 
@@ -58,5 +53,11 @@ if (userId) {
   }
 });
 
+router.get('/orders/by-session/:sessionId', async (req, res) => {
+  const sessionId = req.params.sessionId;
+  const order = await Order.findOne({ sessionId });
+  if (!order) return res.status(404).send('Order not found');
+  res.json(order);
+});
 
 module.exports = router;

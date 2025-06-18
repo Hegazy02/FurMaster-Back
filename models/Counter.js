@@ -1,9 +1,9 @@
-// models/Counter.ts أو .js
-import mongoose from 'mongoose';
+// schema/counter.model.js
+const mongoose = require('mongoose');
 
 const counterSchema = new mongoose.Schema({
-  _id: { type: String, required: true }, // مثلاً "order"
-  seq: { type: Number, default: 0 },
+  name: { type: String, required: true, unique: true },
+  value: { type: Number, default: 0 },
 });
 
-export default mongoose.models.Counter || mongoose.model('Counter', counterSchema);
+module.exports = mongoose.model('Counter', counterSchema);
