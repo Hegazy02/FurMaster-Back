@@ -2,9 +2,11 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 
+const bodyParser = require("body-parser");
+
 const morgan = require("morgan");
 const mongoose = require("mongoose");
-const stripeRoutes = require('./routes/stripe.route.js');
+const stripeRoutes = require("./routes/stripe.route.js");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,9 +15,7 @@ const paymentMethodRoutes = require("./routes/payment_method.route.js");
 const userRoutes = require("./routes/user.route.js");
 const authRoutes = require("./routes/auth.route.js");
 const bannerRoutes = require("./routes/banner.route.js");
-const ordersRoutes = require('./routes/order.route');
-
-
+const ordersRoutes = require("./routes/order.route");
 
 const {
   verifyToken,
@@ -29,22 +29,23 @@ const variantRoutes = require("./routes/product_variant.route.js");
 app.use(morgan("dev"));
 app.use(cors());
 
-
-
 app.use((req, res, next) => {
-  if (req.originalUrl === '/api/stripe/webhook') {
+  if (req.originalUrl === "/api/stripe/webhook") {
     next();
   } else {
     express.json()(req, res, next);
   }
 });
-
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 10000,
+  })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => {
     console.error("Failed to connect to MongoDB", err);
-    process.exit(1);
+    process.exit(1); // Exit process with failure code
   });
 
 // app.use("/", (req, res, next) => {
@@ -52,12 +53,9 @@ mongoose
 //   next();
 // });
 
-
-
-
 //routes
 app.get("/", (req, res) => {
-  res.send("Angular Node Backend");
+  res.send("FurMaster Backend");
 });
 //auh routs
 app.use("/auth", authRoutes);
@@ -70,7 +68,7 @@ app.use("/payment-methods", paymentMethodRoutes);
 //app.use('/api/v1/orders', ordersRoutes);
 app.use("/", userRoutes);
 //order routes
-app.use('/api', ordersRoutes);
+app.use("/api", ordersRoutes);
 
 //banner routes
 app.use("/", bannerRoutes);
@@ -83,9 +81,9 @@ app.use("/colors", colorRoutes);
 //variant routes
 app.use("/admin/products", variantRoutes);
 //stripe routes
-app.use('/api/stripe', stripeRoutes);
+app.use("/api/stripe", stripeRoutes);
 
-const cartRoutes = require('./routes/cart.route.js');
+const cartRoutes = require("./routes/cart.route.js");
 app.use("/", cartRoutes);
 
 app.use((err, req, res, next) => {
@@ -104,3 +102,4 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+module.exports = app;
