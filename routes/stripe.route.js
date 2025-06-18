@@ -16,12 +16,16 @@ router.post("/create-checkout-session", async (req, res) => {
   const { userId } = req.user._id;
 
   const lineItems = products.map((product) => ({
+  const lineItems = products.map((product) => ({
     price_data: {
+      currency: "egp",
       currency: "egp",
       product_data: {
         name: product.name,
         images: product.image ? [product.image] : [],
+        images: product.image ? [product.image] : [],
       },
+      unit_amount: product.price * 100,
       unit_amount: product.price * 100,
     },
     quantity: product.quantity,
@@ -30,7 +34,10 @@ router.post("/create-checkout-session", async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
       client_reference_id: req.body.userId,
+      client_reference_id: req.body.userId,
 
+      payment_method_types: ["card"],
+      mode: "payment",
       payment_method_types: ["card"],
       mode: "payment",
       line_items: lineItems,
@@ -50,7 +57,10 @@ router.post("/create-checkout-session", async (req, res) => {
   }
 });
 
+
 router.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
   "/webhook",
   express.raw({ type: "application/json" }),
   handleWebhook
