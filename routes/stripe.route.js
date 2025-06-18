@@ -29,7 +29,7 @@ router.post("/create-checkout-session", async (req, res) => {
 
   try {
     const session = await stripe.checkout.sessions.create({
-      client_reference_id: req.body.userId,
+      client_reference_id: userId,
       payment_method_types: ["card"],
       mode: "payment",
       line_items: lineItems,
