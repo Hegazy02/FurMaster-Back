@@ -2,11 +2,12 @@ const express = require("express");
 const Stripe = require("stripe");
 require("dotenv").config();
 const { handleWebhook } = require("../controllers/stripe.controller");
+const { verifyToken } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-router.post("/create-checkout-session", async (req, res) => {
+router.post("/create-checkout-session",verifyToken, async (req, res) => {
   // if (!stripe) {
   //   return res.status(500).json({ error: "Stripe not configured" });
   // }
