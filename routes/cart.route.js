@@ -1,23 +1,29 @@
-const { getCart, addToCart, getCartItems, removeFromCart, clearCart } = require("../controllers/cart-controller");
-const express = require('express');
+const {
+  getCart,
+  addToCart,
+  getCartItems,
+  removeFromCart,
+  clearCart,
+} = require("../controllers/cart-controller");
+const express = require("express");
 const Product = require("../models/products");
 const mongoose = require("mongoose");
 const Cart = require("../models/cart");
+const { verifyToken } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
-
-router.get("/cart", async (req, res) => {
+router.get("/cart", verifyToken, async (req, res) => {
   console.log(req.user);
   const userId = req.user._id;
   const items = await getCartItems(userId);
   res.send(items);
 });
 
-router.post("/cart/:id", async (req, res) => {
+router.post("/cart/:id", verifyToken, async (req, res) => {
   try {
     console.log("Add to cart");
-    
+
     console.log(req.user);
     const userId = req.user._id;
 
@@ -33,7 +39,7 @@ router.post("/cart/:id", async (req, res) => {
     if (!cart) {
       cart = new Cart({
         userId,
-        items: [{ productId, variantId, quantity }]
+        items: [{ productId, variantId, quantity }],
       });
     } else {
       const existingItem = cart.items.find(
@@ -57,8 +63,7 @@ router.post("/cart/:id", async (req, res) => {
   }
 });
 
-
-router.delete("/cart/:variantId", async (req, res) => {
+router.delete("/cart/:variantId", verifyToken, async (req, res) => {
   const userId = req.user._id;
   const variantId = req.params.variantId;
 
@@ -70,8 +75,7 @@ router.delete("/cart/:variantId", async (req, res) => {
   }
 });
 
-
-router.delete("/cart", async (req, res) => {
+router.delete("/cart", verifyToken, async (req, res) => {
   const userId = req.user._id;
 
   try {
@@ -82,6 +86,5 @@ router.delete("/cart", async (req, res) => {
     res.status(500).json({ error: "Failed to clear cart" });
   }
 });
-
 
 module.exports = router;
