@@ -1,49 +1,46 @@
 // stripe.js
-const express = require('express');
-const Stripe = require('stripe');
-require('dotenv').config();
-const bodyParser = require('body-parser');
-const Order = require('../models/order.js'); 
-const { handleWebhook } = require('../controllers/stripe.controller');
+const express = require("express");
+const Stripe = require("stripe");
+require("dotenv").config();
+const bodyParser = require("body-parser");
+const Order = require("../models/order.js");
+const { handleWebhook } = require("../controllers/stripe.controller");
 
 const router = express.Router();
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-router.post('/create-checkout-session', async (req, res) => {
-  
-if (!req.body || !req.body.products) {
-  return res.status(400).json({ error: "Products data is required" });
-}
-const { products } = req.body;
-  const { userId } = req.body; 
+router.post("/create-checkout-session", async (req, res) => {
+  if (!req.body || !req.body.products) {
+    return res.status(400).json({ error: "Products data is required" });
+  }
+  const { products } = req.body;
+  const { userId } = req.body;
 
-  const lineItems = products.map(product => ({
+  const lineItems = products.map((product) => ({
     price_data: {
-      currency: 'usd',
+      currency: "egp",
       product_data: {
         name: product.name,
-  images: product.image ? [product.image] : [],
+        images: product.image ? [product.image] : [],
       },
-      unit_amount: product.price * 100, 
+      unit_amount: product.price * 100,
     },
     quantity: product.quantity,
   }));
 
   try {
     const session = await stripe.checkout.sessions.create({
-        client_reference_id: req.body.userId,
+      client_reference_id: req.body.userId,
 
-      payment_method_types: ['card'],
-      mode: 'payment',
+      payment_method_types: ["card"],
+      mode: "payment",
       line_items: lineItems,
-      success_url: 'http://localhost:4200/success',
-      cancel_url: 'http://localhost:4200/cancel',
-        metadata: {
-    products: JSON.stringify(products)
-  },
-      client_reference_id: userId  
-
-
+      success_url: "http://localhost:4200/success",
+      cancel_url: "http://localhost:4200/cancel",
+      metadata: {
+        products: JSON.stringify(products),
+      },
+      client_reference_id: userId,
     });
 
     res.json({ url: session.url });
@@ -52,11 +49,9 @@ const { products } = req.body;
   }
 });
 
-
-   
 router.post(
-  '/webhook',
-   express.raw({ type: 'application/json' }),
+  "/webhook",
+  express.raw({ type: "application/json" }),
   handleWebhook
 );
 

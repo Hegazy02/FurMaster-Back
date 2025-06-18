@@ -16,6 +16,8 @@ router.get("/cart", async (req, res) => {
 
 router.post("/cart/:id", async (req, res) => {
   try {
+    console.log("Add to cart");
+    
     console.log(req.user);
     const userId = req.user._id; 
 
