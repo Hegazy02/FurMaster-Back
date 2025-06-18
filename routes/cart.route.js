@@ -1,17 +1,17 @@
-const { getCart, addToCart, getCartItems, removeFromCart } = require("../controllers/cart-controller");
+const { getCart, addToCart, getCartItems, removeFromCart, clearCart } = require("../controllers/cart-controller");
 const express = require('express');
-const Product = require("../models/products");  
+const Product = require("../models/products");
 const mongoose = require("mongoose");
-const Cart =require("../models/cart");
+const Cart = require("../models/cart");
 
 const router = express.Router();
 
 
 router.get("/cart", async (req, res) => {
-    console.log(req.user);
-    const userId = req.user._id;
-    const items = await getCartItems(userId);
-    res.send(items);
+  console.log(req.user);
+  const userId = req.user._id;
+  const items = await getCartItems(userId);
+  res.send(items);
 });
 
 router.post("/cart/:id", async (req, res) => {
@@ -19,9 +19,9 @@ router.post("/cart/:id", async (req, res) => {
     console.log("Add to cart");
     
     console.log(req.user);
-    const userId = req.user._id; 
+    const userId = req.user._id;
 
-    const variantId = req.params.id; 
+    const variantId = req.params.id;
     const { productId, quantity } = req.body;
 
     if (!productId || isNaN(quantity)) {
@@ -43,7 +43,7 @@ router.post("/cart/:id", async (req, res) => {
       );
 
       if (existingItem) {
-  existingItem.quantity = quantity;
+        existingItem.quantity = quantity;
       } else {
         cart.items.push({ productId, variantId, quantity });
       }
@@ -59,7 +59,7 @@ router.post("/cart/:id", async (req, res) => {
 
 
 router.delete("/cart/:variantId", async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user._id;
   const variantId = req.params.variantId;
 
   try {
@@ -72,7 +72,7 @@ router.delete("/cart/:variantId", async (req, res) => {
 
 
 router.delete("/cart", async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user._id;
 
   try {
     const result = await clearCart(userId);

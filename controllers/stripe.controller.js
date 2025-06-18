@@ -2,8 +2,31 @@ const Stripe = require('stripe');
 const Order = require('../models/order');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const Cart = require('../models/cart');
-const sendEmail = require('../utils/sendEmail');
+//const sendEmail = require('../utils/sendEmail');
+const Counter = require('../models/counter');
+const Product = require("../models/products.js");
 
+async function getNextOrderNumber() {
+  const counter = await Counter.findOneAndUpdate(
+    { name: 'order' },
+    { $inc: { value: 1 } },
+    { new: true, upsert: true }
+  );
+  return counter.value;
+}
+
+
+const decreaseProductQuantities = async (products) => {
+  const operations = products.map((item) => ({
+    updateOne: {
+      filter: { _id: item.productId },
+      update: { $inc: { "colors.$[elem].stock": -item.quantity } },
+      arrayFilters: [{ "elem._id": item.variantId }],
+    },
+  }));
+
+  await Product.bulkWrite(operations);
+};
 
 exports.handleWebhook = async (req, res) => {
   const sig = req.headers['stripe-signature'];
@@ -23,6 +46,9 @@ exports.handleWebhook = async (req, res) => {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     console.log('✅ Session completed:', session);
+    
+console.log('📌 Metadata:', session.metadata);
+console.log('👤 client_reference_id:', session.client_reference_id);
 
     const products = JSON.parse(session.metadata?.products || '[]');
       console.log('📦 Products from metadata:', products);
@@ -35,9 +61,9 @@ const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_inten
 const charge = paymentIntent?.charges?.data?.[0] || {};
 
       //const charge = paymentIntent.charges.data[0];
-
+const orderNumber = await getNextOrderNumber();
       await Order.create({
-
+ orderId: orderNumber,
         sessionId: session.id,
         customerEmail: session.customer_email,
         amountTotal: session.amount_total / 100,
@@ -47,7 +73,7 @@ const charge = paymentIntent?.charges?.data?.[0] || {};
           userId: session.client_reference_id, 
         cardLast4: charge?.payment_method_details?.card?.last4 || '',
         cardBrand: charge?.payment_method_details?.card?.brand || '',
-
+              hasStockBeenAdjusted:true,
        
 
 products: products.map(p => {
@@ -66,7 +92,9 @@ products: products.map(p => {
 
        
       });
-///send email
+      await decreaseProductQuantities(products);
+
+/*///send email
 await sendEmail({
   to: session.customer_email,
   subject: 'Order Confirmation - FurMaster',
@@ -76,7 +104,7 @@ await sendEmail({
     <p>We've received your order and it's being processed.</p>
     <p><strong>Total:</strong> $${(session.amount_total / 100).toFixed(2)}</p>
   `,
-});
+});*/
 
 
 
@@ -87,7 +115,7 @@ console.log('🧾 User cart before deletion:', cart);
 
 await Cart.deleteMany({ userId: session.client_reference_id });
     } catch (error) {
-      console.error('❌ Error saving order:', error.message);
+console.error('❌ Full error:', error);
     }
   }
 
