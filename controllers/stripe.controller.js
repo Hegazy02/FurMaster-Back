@@ -3,7 +3,7 @@ const Order = require("../models/order");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const Cart = require("../models/cart");
 //const sendEmail = require('../utils/sendEmail');
-const Counter = require("../models/counter");
+const Counter = require("../models/counter.js");
 const Product = require("../models/products.js");
 
 async function getNextOrderNumber() {
