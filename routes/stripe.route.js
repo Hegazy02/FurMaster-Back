@@ -1,22 +1,28 @@
 const express = require("express");
 const Stripe = require("stripe");
 require("dotenv").config();
-const bodyParser = require("body-parser");
-const Order = require("../models/order.js");
 const { handleWebhook } = require("../controllers/stripe.controller");
 
 const router = express.Router();
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 router.post("/create-checkout-session", async (req, res) => {
+  if (!stripe) {
+    return res.status(500).json({ error: "Stripe not configured" });
+  }
+
   if (!req.body || !req.body.products) {
     return res.status(400).json({ error: "Products data is required" });
+  }
+
+  if (!req.user || !req.user._id) {
+    return res.status(401).json({ error: "Authentication required" });
   }
   const { products } = req.body;
 
   try {
-    console.log("userrrr",user);
-    
+    console.log("userrrr", user);
+
     const userId = req.user._id;
     const lineItems = products.map((product) => ({
       price_data: {
