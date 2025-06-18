@@ -13,21 +13,22 @@ router.post("/create-checkout-session", async (req, res) => {
     return res.status(400).json({ error: "Products data is required" });
   }
   const { products } = req.body;
-  const userId = req.user._id;
-
-  const lineItems = products.map((product) => ({
-    price_data: {
-      currency: "egp",
-      product_data: {
-        name: product.name,
-        images: product.image ? [product.image] : [],
-      },
-      unit_amount: product.price * 100,
-    },
-    quantity: product.quantity,
-  }));
 
   try {
+    console.log("userrrr",user);
+    
+    const userId = req.user._id;
+    const lineItems = products.map((product) => ({
+      price_data: {
+        currency: "egp",
+        product_data: {
+          name: product.name,
+          images: product.image ? [product.image] : [],
+        },
+        unit_amount: product.price * 100,
+      },
+      quantity: product.quantity,
+    }));
     const session = await stripe.checkout.sessions.create({
       client_reference_id: userId,
       payment_method_types: ["card"],
