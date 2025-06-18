@@ -47,17 +47,12 @@ mongoose
     process.exit(1);
   });
 
-app.use("/", (req, res, next) => {
-  req.user = { _id: "68401db564e6f207ae0e11e2", role: "admin" };
-  next();
-});
-
-//stripe routes
-app.use('/api/stripe', stripeRoutes);
+// app.use("/", (req, res, next) => {
+//   req.user = { _id: "68401db564e6f207ae0e11e2", role: "admin" };
+//   next();
+// });
 
 
-const cartRoutes = require('./routes/cart.route.js');
-app.use("/", cartRoutes);
 
 
 //routes
@@ -67,8 +62,8 @@ app.get("/", (req, res) => {
 //auh routs
 app.use("/auth", authRoutes);
 //auth middlewares
-//app.use(verifyToken);
-//app.use("/admin", verifyAdmin);
+app.use(verifyToken);
+app.use("/admin", verifyAdmin);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
@@ -87,6 +82,11 @@ app.use("/", categoryRoutes);
 app.use("/colors", colorRoutes);
 //variant routes
 app.use("/admin/products", variantRoutes);
+//stripe routes
+app.use('/api/stripe', stripeRoutes);
+
+const cartRoutes = require('./routes/cart.route.js');
+app.use("/", cartRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err);
