@@ -1,6 +1,5 @@
 require("dotenv").config();
 const express = require("express");
-
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const stripeRoutes = require("./routes/stripe.route.js");
@@ -42,7 +41,7 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => {
     console.error("Failed to connect to MongoDB", err);
-    process.exit(1);
+    process.exit(1); // Exit process with failure code
   });
 
 // app.use("/", (req, res, next) => {
