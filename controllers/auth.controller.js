@@ -26,7 +26,7 @@ const sginup = async (req, res, next) => {
     });
 
     const token = jwt.sign(
-      { id: user._id, role: "user" },
+      { _id: user._id, role: "user" },
       process.env.TOKEN_SECRET
     );
 
@@ -54,7 +54,7 @@ const login = async (req, res, next) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { _id: user._id, role: user.role },
       process.env.TOKEN_SECRET
     );
 
@@ -123,7 +123,7 @@ const resetPassword = async (req, res, next) => {
     await user.save();
     const { password: _p, ...userData } = user.toObject();
     const token = jwt.sign(
-      { id: user._id, role: "user" },
+      { _id: user._id, role: "user" },
       process.env.TOKEN_SECRET
     );
     res

@@ -26,6 +26,10 @@ const orderSchema = new mongoose.Schema({
       variantId: { type: mongoose.Schema.Types.ObjectId },
     },
   ],
+  hasStockBeenAdjusted: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

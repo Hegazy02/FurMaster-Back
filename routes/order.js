@@ -1,34 +1,39 @@
-const { Order } = require('../models/order');
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { OrderItem } = require('../models/order-item');
-const { verifyToken, isAdmin } = require('../middlewares/auth');
+const { verifyToken, isAdmin } = require("../middlewares/auth");
 
 const {
   createOrder,
   getOrders,
   getOrder,
   deleteOrder,
-  updateOrderStatus,
+  updateOrder,
   createPaymentIntent,
   confirmPayment,
+  handleStripeWebhook,
+  getAllOrders,
+} = require("../controllers/order.Controller");
+
+router.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
   handleStripeWebhook
-} = require('../controllers/order.Controller');
+);
 
-router.post('/webhook', express.raw({type: 'application/json'}), handleStripeWebhook);
+router.post("/create-payment-intent", verifyToken, createPaymentIntent);
 
-router.post('/create-payment-intent', verifyToken, createPaymentIntent);
+router.post("/confirm-payment", verifyToken, confirmPayment);
 
-router.post('/confirm-payment', verifyToken, confirmPayment);
+router.post("/orders", verifyToken, createOrder);
 
-router.post('/', verifyToken, createOrder);
+router.get("/orders", verifyToken, getOrders);
 
-router.get('/', verifyToken, getOrders);
+router.get("orders/:id", verifyToken, getOrder);
 
-router.get('/:id', verifyToken, getOrder);
+router.delete("orders/:id", verifyToken, isAdmin, deleteOrder);
 
-router.delete('/:id', verifyToken, isAdmin, deleteOrder);
+router.patch("/admin/orders/:id", updateOrder);
 
-router.put('/:id/status', verifyToken, isAdmin, updateOrderStatus);
+router.get("/admin/orders", getAllOrders);
 
 module.exports = router;
