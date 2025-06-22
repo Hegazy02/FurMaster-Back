@@ -167,13 +167,12 @@ if (categoryId) {
 
     res.status(200).json({
       success: true,
-      data: products,
-      pagination: {
+      data: products, 
         total,
         page: Number(page),
         limit,
         totalPages: Math.ceil(total / limit),
-      },
+      
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

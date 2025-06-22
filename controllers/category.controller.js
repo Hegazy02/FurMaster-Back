@@ -44,7 +44,10 @@ const getCategoryById = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Category not found" });
     }
-    res.status(200).json(category);
+    res.status(200).json( {
+  success: true,
+  data: category
+});
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
