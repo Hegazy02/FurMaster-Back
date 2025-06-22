@@ -21,6 +21,7 @@ const productsRoutes = require("./routes/product.route.js");
 const categoryRoutes = require("./routes/category.route.js");
 const colorRoutes = require("./routes/color.route.js");
 const variantRoutes = require("./routes/product_variant.route.js");
+const statisticRoutes = require("./routes/statistic.route.js");
 
 app.use(morgan("dev"));
 app.use(cors());
@@ -77,6 +78,9 @@ app.use("/", colorRoutes);
 app.use("/admin/products", variantRoutes);
 //stripe routes
 app.use("/api/stripe", stripeRoutes);
+//statistics routes
+app.use("/admin", statisticRoutes);
+
 
 const cartRoutes = require("./routes/cart.route.js");
 app.use("/", cartRoutes);
