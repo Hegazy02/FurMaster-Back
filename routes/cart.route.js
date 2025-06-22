@@ -15,40 +15,12 @@ router.get("/cart", async (req, res) => {
 });
 
 router.post("/cart/:id", async (req, res) => {
-  try {
-    console.log(req.user);
+try {
+    const variantId = req.params._id;
+    const { productId, quantity } = req.body;
     const userId = req.user._id;
 
-    const variantId = req.params.id;
-    const { productId, quantity } = req.body;
-
-    if (!productId || isNaN(quantity)) {
-      return res.status(400).json({ error: "Missing or invalid data" });
-    }
-
-    let cart = await Cart.findOne({ userId });
-
-    if (!cart) {
-      cart = new Cart({
-        userId,
-        items: [{ productId, variantId, quantity }]
-      });
-    } else {
-      const existingItem = cart.items.find(
-        (item) =>
-          item.productId.toString() === productId &&
-          item.variantId.toString() === variantId
-      );
-
-      if (existingItem) {
-        existingItem.quantity = quantity;
-      } else {
-        cart.items.push({ productId, variantId, quantity });
-      }
-    }
-
-    await cart.save();
-    res.status(200).json({ status: "success", cart });
+    await addToCart(userId, productId, variantId, quantity, res);
   } catch (err) {
     console.error(err);
     res.status(500).json({ status: "failed", message: err.message });
