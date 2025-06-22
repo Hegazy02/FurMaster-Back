@@ -53,7 +53,7 @@ router.get('/orders', async (req, res) => {
   }
 });
 
-router.get('/orders/by-session/:sessionId', async (req, res) => {
+router.get('api/orders/by-session/:sessionId', async (req, res) => {
   const sessionId = req.params.sessionId;
   const order = await Order.findOne({ sessionId });
   if (!order) return res.status(404).send('Order not found');
