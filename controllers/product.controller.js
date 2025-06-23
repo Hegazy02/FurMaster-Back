@@ -106,7 +106,7 @@ const getProducts = async (req, res) => {
       colorId,
       sortBy = "",
     } = req.query;
-    const limit = 10;
+    const limit = 12;
     const skip = (page - 1) * limit;
     const filter = { isDeleted: false };
 
