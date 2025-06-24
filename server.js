@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
-const stripeRoutes = require("./routes/stripe.route.js");
+const stripeRoutes = require('./routes/stripe.route.js');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -26,8 +26,10 @@ const statisticRoutes = require("./routes/statistic.route.js");
 app.use(morgan("dev"));
 app.use(cors());
 
+
+
 app.use((req, res, next) => {
-  if (req.originalUrl === "/api/stripe/webhook") {
+  if (req.originalUrl === '/api/stripe/webhook') {
     next();
   } else {
     express.json()(req, res, next);
@@ -45,10 +47,17 @@ mongoose
     process.exit(1);
   });
 
-// app.use("/", (req, res, next) => {
-//   req.user = { _id: "68401db564e6f207ae0e11e2", role: "admin" };
-//   next();
-// });
+
+app.use("/",(req,res,next)=>{
+req.user={_id:"684d86d4fb4975eb669754a8"};
+next()
+});
+
+//stripe routes
+app.use('/api/stripe', stripeRoutes);
+
+
+
 
 //routes
 app.get("/", (req, res) => {
@@ -64,7 +73,7 @@ app.use("/payment-methods", paymentMethodRoutes);
 //app.use('/api/v1/orders', ordersRoutes);
 app.use("/", userRoutes);
 //order routes
-app.use("/api", ordersRoutes);
+app.use('/api', ordersRoutes);
 
 //banner routes
 app.use("/", bannerRoutes);
@@ -95,6 +104,9 @@ app.use((err, req, res, next) => {
     message: err.message || "Something went wrong",
   });
 });
+
+
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
