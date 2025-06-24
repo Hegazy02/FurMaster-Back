@@ -1,7 +1,5 @@
 require("dotenv").config();
 const express = require("express");
-const bodyParser = require("body-parser");
-
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const stripeRoutes = require('./routes/stripe.route.js');
@@ -25,6 +23,7 @@ const productsRoutes = require("./routes/product.route.js");
 const categoryRoutes = require("./routes/category.route.js");
 const colorRoutes = require("./routes/color.route.js");
 const variantRoutes = require("./routes/product_variant.route.js");
+const statisticRoutes = require("./routes/statistic.route.js");
 
 app.use(morgan("dev"));
 app.use(cors());
@@ -38,9 +37,12 @@ app.use((req, res, next) => {
     express.json()(req, res, next);
   }
 });
-
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 10000,
+  })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => {
     console.error("Failed to connect to MongoDB", err);
@@ -57,19 +59,16 @@ next()
 app.use('/api/stripe', stripeRoutes);
 
 
-const cartRoutes = require('./routes/cart.route.js');
-app.use("/", cartRoutes);
 
 
 //routes
 app.get("/", (req, res) => {
-  res.send("Angular Node Backend");
+  res.send("FurMaster Backend");
 });
 //auh routs
 app.use("/auth", authRoutes);
 //auth middlewares
-//app.use(verifyToken);
-//app.use("/admin", verifyAdmin);
+app.use("/admin", verifyToken, verifyAdmin);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
@@ -85,9 +84,18 @@ app.use("/", productsRoutes);
 //categories routes
 app.use("/", categoryRoutes);
 //colors routes
-app.use("/colors", colorRoutes);
+app.use("/", colorRoutes);
 //variant routes
 app.use("/admin/products", variantRoutes);
+//stripe routes
+app.use("/api/stripe", stripeRoutes);
+//statistics routes
+app.use("/admin", statisticRoutes);
+
+
+const cartRoutes = require("./routes/cart.route.js");
+app.use("/", cartRoutes);
+
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err);
   const statusCode = err.statusCode || 500;
@@ -104,3 +112,4 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+module.exports = app;

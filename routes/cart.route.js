@@ -3,6 +3,7 @@ const express = require('express');
 const Product = require("../models/products");
 const mongoose = require("mongoose");
 const Cart = require("../models/cart");
+const { verifyToken } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ router.get("/cart", async (req, res) => {
   res.send(items);
 });
 
-router.post("/cart/:id", async (req, res) => {
+router.post("/cart/:id", verifyToken, async (req, res) => {
 try {
     const variantId = req.params._id;
     const { productId, quantity } = req.body;
@@ -27,8 +28,7 @@ try {
   }
 });
 
-
-router.delete("/cart/:variantId", async (req, res) => {
+router.delete("/cart/:variantId", verifyToken, async (req, res) => {
   const userId = req.user._id;
   const variantId = req.params.variantId;
 
@@ -40,8 +40,7 @@ router.delete("/cart/:variantId", async (req, res) => {
   }
 });
 
-
-router.delete("/cart", async (req, res) => {
+router.delete("/cart", verifyToken, async (req, res) => {
   const userId = req.user._id;
 
   try {
@@ -52,6 +51,5 @@ router.delete("/cart", async (req, res) => {
     res.status(500).json({ error: "Failed to clear cart" });
   }
 });
-
 
 module.exports = router;

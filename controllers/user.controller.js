@@ -3,7 +3,7 @@ const appError = require("../utils/appError");
 
 const getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     if (!user) {
       return next(new appError("User not found", 404));
     }
@@ -20,7 +20,7 @@ const updateMe = async (req, res, next) => {
       updateData.image = req.file.path;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(req.user.id, updateData, {
+    const updatedUser = await User.findByIdAndUpdate(req.user._id, updateData, {
       new: true,
     });
 

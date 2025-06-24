@@ -1,13 +1,13 @@
 const jwt = require("jsonwebtoken");
 const AppError = require("../utils/appError");
 const verifyToken = (req, res, next) => {
-  
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.split(" ")[1];
     console.log(token);
     jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
       if (err) throw new AppError("Token is not valid", 403);
+      console.log("user", user);
 
       req.user = user;
       next();

@@ -106,7 +106,7 @@ const getProducts = async (req, res) => {
       colorId,
       sortBy = "",
     } = req.query;
-    const limit = 10;
+    const limit = 12;
     const skip = (page - 1) * limit;
     const filter = { isDeleted: false };
 
@@ -123,13 +123,17 @@ const getProducts = async (req, res) => {
       if (maxPrice) filter.price.$lte = Number(maxPrice);
     }
 
-    if (categoryId) {
-      filter.categoryId = categoryId;
-    }
+if (categoryId) {
+  const ids = categoryId.split(',');
+  filter.categoryId = { $in: ids.map(id => new mongoose.Types.ObjectId(id)) };
+}
 
-    if (colorId) {
-      filter["colors.colorId"] = colorId;
-    }
+
+   if (colorId) {
+  const colorIds = colorId.split(',').map(id => new mongoose.Types.ObjectId(id));
+  filter["colors.colorId"] = { $in: colorIds };
+}
+
 
     let sort = {};
 
@@ -163,13 +167,12 @@ const getProducts = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: products,
-      pagination: {
+      data: products, 
         total,
         page: Number(page),
         limit,
         totalPages: Math.ceil(total / limit),
-      },
+      
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
