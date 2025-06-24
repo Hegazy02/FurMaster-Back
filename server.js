@@ -11,10 +11,8 @@ const paymentMethodRoutes = require("./routes/payment_method.route.js");
 const userRoutes = require("./routes/user.route.js");
 const authRoutes = require("./routes/auth.route.js");
 const bannerRoutes = require("./routes/banner.route.js");
-const ordersRoutes = require('./routes/order.route');
-
-
-
+const ordersRoutes = require("./routes/order.route");
+const orderRoutes=require("./routes/order.js");
 const {
   verifyToken,
   verifyAdmin,
@@ -91,6 +89,7 @@ app.use("/admin/products", variantRoutes);
 app.use("/api/stripe", stripeRoutes);
 //statistics routes
 app.use("/admin", statisticRoutes);
+app.use("/", orderRoutes);
 
 
 const cartRoutes = require("./routes/cart.route.js");
