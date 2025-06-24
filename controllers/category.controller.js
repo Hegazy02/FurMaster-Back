@@ -5,7 +5,7 @@ const { updateCategorySchema, categorySchema } = require("../validators/category
 
 const getCategory = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const limit = 8;
+  const limit = 10;
   const skip = (page - 1) * limit;
   const search = req.query.search || "";
 
@@ -44,7 +44,10 @@ const getCategoryById = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Category not found" });
     }
-    res.status(200).json(category);
+    res.status(200).json( {
+  success: true,
+  data: category
+});
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

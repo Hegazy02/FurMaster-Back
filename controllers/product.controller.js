@@ -106,7 +106,7 @@ const getProducts = async (req, res) => {
       colorId,
       sortBy = "",
     } = req.query;
-    const limit = 10;
+    const limit = 12;
     const skip = (page - 1) * limit;
     const filter = { isDeleted: false };
 
@@ -167,13 +167,12 @@ if (categoryId) {
 
     res.status(200).json({
       success: true,
-      data: products,
-      pagination: {
+      data: products, 
         total,
         page: Number(page),
         limit,
         totalPages: Math.ceil(total / limit),
-      },
+      
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
