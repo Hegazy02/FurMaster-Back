@@ -225,7 +225,7 @@ exports.getOrder = async (req, res) => {
 
 exports.getAllOrders = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, number } = req.query;
+    const { page = 1, limit = 10, number, sort = "desc" } = req.query;
     const total = await Order.countDocuments();
     const filter = {};
     if (number) {
@@ -235,7 +235,7 @@ exports.getAllOrders = async (req, res, next) => {
 
     const orders = await Order.find(filter)
       .populate("userId", "firstName lastName email")
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: sort === "asc" ? 1 : -1 })
       .skip((page - 1) * limit)
       .limit(limit);
 

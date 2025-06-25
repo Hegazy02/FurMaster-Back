@@ -48,15 +48,10 @@ mongoose
   });
 
 
-app.use("/",(req,res,next)=>{
-req.user={_id:"684d86d4fb4975eb669754a8"};
-next()
-});
-
-//stripe routes
-app.use('/api/stripe', stripeRoutes);
-
-
+// app.use("/",(req,res,next)=>{
+// req.user={_id:"684d86d4fb4975eb669754a8"};
+// next()
+// });
 
 
 //routes
