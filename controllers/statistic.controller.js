@@ -348,8 +348,71 @@ const getTotalOrdersAmountStatistics = async (req, res, next) => {
   }
 };
 
+const getBestSellingProducts = async (req, res, next) => {
+  try {
+    const { from, to, limit = 10 } = req.query;
+
+    const matchStage = {};
+
+    if (from || to) {
+      matchStage.createdAt = {};
+      if (from) matchStage.createdAt.$gte = new Date(from);
+      if (to) matchStage.createdAt.$lte = new Date(to);
+    }
+
+    const results = await Order.aggregate([
+      { $match: matchStage },
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: "$products.productId",
+          totalOrder: { $sum: "$products.quantity" },
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        $match: {
+          "product.isDeleted": false,
+        },
+      },
+      {
+        $addFields: {
+          totalStock: {
+            $sum: "$product.colors.stock",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          title: "$product.title",
+          stock: "$totalStock",
+          totalOrder: 1,
+          price: "$product.price",
+        },
+      },
+      { $sort: { totalOrder: -1 } },
+      { $limit: parseInt(limit) },
+    ]);
+
+    res.json({ success: true, data: results });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
 module.exports = {
   getCustomerGenderStatistics,
   getTotalOrdersStatistics,
   getTotalOrdersAmountStatistics,
+  getBestSellingProducts,
 };
