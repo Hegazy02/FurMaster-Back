@@ -53,11 +53,6 @@ mongoose
 // next()
 // });
 
-//stripe routes
-app.use('/api/stripe', stripeRoutes);
-
-
-
 
 //routes
 app.get("/", (req, res) => {
