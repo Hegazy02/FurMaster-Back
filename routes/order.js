@@ -12,7 +12,7 @@ const {
   confirmPayment,
   handleStripeWebhook,
   getAllOrders,
-} = require("../controllers/order.Controller");
+} = require("../controllers/order.controller.js");
 
 router.post(
   "/webhook",

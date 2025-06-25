@@ -3,16 +3,18 @@ require('../models/color');
 
 
 
-async function addToCart(req, res) {
-  const { productId, variantId, quantity } = req.body;
-  const userId = req.user.id;
+async function addToCart(userId, productId, variantId, quantity, res) {
+  const qty = Number(quantity);
+  if (!productId || isNaN(qty)) {
+    return res.status(400).json({ error: "Missing or invalid data" });
+  }
 
   let cart = await Cart.findOne({ userId });
 
   if (!cart) {
     cart = new Cart({
       userId,
-      items: [{ productId, variantId, quantity }]
+      items: [{ productId, variantId, quantity: qty }]
     });
   } else {
     const existingItem = cart.items.find(
@@ -22,14 +24,14 @@ async function addToCart(req, res) {
     );
 
     if (existingItem) {
-      existingItem.quantity += quantity;
+      existingItem.quantity += qty;
     } else {
-      cart.items.push({ productId, variantId, quantity });
+      cart.items.push({ productId, variantId, quantity: qty });
     }
   }
 
   await cart.save();
-  res.json({ status: "success", cart });
+  res.status(200).json({ status: "success", cart });
 }
 
 
