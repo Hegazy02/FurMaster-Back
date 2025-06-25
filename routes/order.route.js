@@ -5,34 +5,16 @@ const { verifyToken, verifyAdmin } = require("../middlewares/auth.middleware");
 //const isAdmin = require('../middleware/isAdmin');
 
 router.get("/orders", verifyToken, async (req, res) => {
-  const {
-    page = 1,
-    limit = 10,
-    status = "",
-    sort = "-createdAt",
-    minPrice,
-    maxPrice,
-    dateFrom,
-    dateTo,
-  } = req.query;
-  const query = {
-    userId: req.user._id,
+    const { page = 1, limit = 10, status = '', sort = '-createdAt',
+    
+    } = req.query;
+ const query = {
+    userId: req.user._id  
   };
 
   if (status) query.status = status;
 
-  if (minPrice || maxPrice) {
-    query.amountTotal = {};
-    if (minPrice) query.amountTotal.$gte = Number(minPrice);
-    if (maxPrice) query.amountTotal.$lte = Number(maxPrice);
-  }
-
-  if (dateFrom || dateTo) {
-    query.createdAt = {};
-    if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
-    if (dateTo) query.createdAt.$lte = new Date(dateTo);
-  }
-
+  
   try {
     const orders = await Order.find(query)
       .sort(sort)
@@ -52,6 +34,7 @@ router.get("/orders", verifyToken, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
 
 router.get("/orders/by-session/:sessionId", verifyToken, async (req, res) => {
   const sessionId = req.params.sessionId;

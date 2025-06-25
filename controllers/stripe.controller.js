@@ -1,14 +1,14 @@
 const Stripe = require("stripe");
 const Order = require("../models/order");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
-const Cart = require("../models/cart");
+const Cart = require('../models/cart');
 //const sendEmail = require('../utils/sendEmail');
-const Counter = require("../models/counter.js");
+const Counter = require('../models/counter');
 const Product = require("../models/products.js");
 
 async function getNextOrderNumber() {
   const counter = await Counter.findOneAndUpdate(
-    { name: "order" },
+    { name: 'order' },
     { $inc: { value: 1 } },
     { new: true, upsert: true }
   );
