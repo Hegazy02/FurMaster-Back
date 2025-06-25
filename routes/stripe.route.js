@@ -7,23 +7,19 @@ const { verifyToken } = require("../middlewares/auth.middleware");
 const router = express.Router();
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-router.post("/create-checkout-session",verifyToken, async (req, res) => {
+router.post("/create-checkout-session", verifyToken, async (req, res) => {
   // if (!stripe) {
   //   return res.status(500).json({ error: "Stripe not configured" });
   // }
-
   // if (!req.body || !req.body.products) {
   //   return res.status(400).json({ error: "Products data is required" });
   // }
-
   // if (!req.user || !req.user._id) {
   //   return res.status(401).json({ error: "Authentication required" });
   // }
   // const { products } = req.body;
-
   // try {
   //   console.log("userrrr", user);
-
   //   const userId = req.user._id;
   //   const lineItems = products.map((product) => ({
   //     price_data: {
@@ -44,12 +40,10 @@ router.post("/create-checkout-session",verifyToken, async (req, res) => {
   //     success_url:
   //       "http://localhost:4200/success?session_id={CHECKOUT_SESSION_ID}",
   //     cancel_url: "http://localhost:4200/cancel",
-
   //     metadata: {
   //       products: JSON.stringify(products),
   //     },
   //   });
-
   //   res.json({ url: session.url });
   // } catch (error) {
   //   res.status(500).json({ error: error.message });
