@@ -8,7 +8,7 @@ const { verifyToken } = require("../middlewares/auth.middleware");
 const router = express.Router();
 
 
-router.get("/cart", async (req, res) => {
+router.get("/cart", verifyToken,async (req, res) => {
   console.log(req.user);
   const userId = req.user._id;
   const items = await getCartItems(userId);
@@ -16,8 +16,8 @@ router.get("/cart", async (req, res) => {
 });
 
 router.post("/cart/:id", verifyToken, async (req, res) => {
-try {
-    const variantId = req.params._id;
+  try {
+    const variantId = req.params.id;
     const { productId, quantity } = req.body;
     const userId = req.user._id;
 
