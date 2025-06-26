@@ -24,7 +24,7 @@ async function addToCart(userId, productId, variantId, quantity, res) {
     );
 
     if (existingItem) {
-      existingItem.quantity += qty;
+      existingItem.quantity = qty;
     } else {
       cart.items.push({ productId, variantId, quantity: qty });
     }
