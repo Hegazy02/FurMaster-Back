@@ -4,7 +4,7 @@ const Joi = require("joi");
 const loginSchema = Joi.object({
   email: Joi.string().email().max(255).required(),
   password: Joi.string()
-    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"))
+    .pattern(new RegExp(/^(?![.\n])(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$/))
     .required()
     .messages({
       "string.pattern.base":

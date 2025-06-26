@@ -6,14 +6,12 @@ const signupSchema = Joi.object({
   email: Joi.string().email().max(255).required(),
   gender: Joi.number().required(),
 
-  // Optional fields
-  phoneNumber: Joi.string().optional(),
+  phoneNumber: Joi.string().required(),
   city: Joi.string().optional(),
   street: Joi.string().optional(),
   address: Joi.string().optional(),
   image: Joi.string().uri().optional(),
 
-  // Required password with strong pattern
   password: Joi.string()
     .pattern(
       new RegExp(
