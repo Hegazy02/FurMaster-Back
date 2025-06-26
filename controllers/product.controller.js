@@ -83,7 +83,7 @@ const updateProduct = async (req, res) => {
 const deleteProduct = async (req, res, next) => {
   try {
     const deletedProduct = await Product.findByIdAndUpdate(req.params.id, {
-      $set: { isDeleted: true },
+      $set: { isDeleted: new Date() },
     });
     if (!deletedProduct) throw new AppError("Product not found", 404);
 
@@ -108,7 +108,7 @@ const getProducts = async (req, res) => {
     } = req.query;
     const limit = 12;
     const skip = (page - 1) * limit;
-    const filter = { isDeleted: false };
+    const filter = { isDeleted: null };
 
     if (key) {
       filter.$or = [
@@ -123,17 +123,19 @@ const getProducts = async (req, res) => {
       if (maxPrice) filter.price.$lte = Number(maxPrice);
     }
 
-if (categoryId) {
-  const ids = categoryId.split(',');
-  filter.categoryId = { $in: ids.map(id => new mongoose.Types.ObjectId(id)) };
-}
+    if (categoryId) {
+      const ids = categoryId.split(",");
+      filter.categoryId = {
+        $in: ids.map((id) => new mongoose.Types.ObjectId(id)),
+      };
+    }
 
-
-   if (colorId) {
-  const colorIds = colorId.split(',').map(id => new mongoose.Types.ObjectId(id));
-  filter["colors.colorId"] = { $in: colorIds };
-}
-
+    if (colorId) {
+      const colorIds = colorId
+        .split(",")
+        .map((id) => new mongoose.Types.ObjectId(id));
+      filter["colors.colorId"] = { $in: colorIds };
+    }
 
     let sort = {};
 
@@ -167,12 +169,11 @@ if (categoryId) {
 
     res.status(200).json({
       success: true,
-      data: products, 
-        total,
-        page: Number(page),
-        limit,
-        totalPages: Math.ceil(total / limit),
-      
+      data: products,
+      total,
+      page: Number(page),
+      limit,
+      totalPages: Math.ceil(total / limit),
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -193,7 +194,7 @@ const getAdminProducts = async (req, res) => {
 
     const skip = (page - 1) * limit;
     // const filter = {};
-    const filter = { isDeleted: false };
+    const filter = { isDeleted: null };
 
     if (title) {
       filter.$or = [{ title: { $regex: title, $options: "i" } }];
