@@ -380,7 +380,7 @@ const getBestSellingProducts = async (req, res, next) => {
       { $unwind: "$product" },
       {
         $match: {
-          "product.isDeleted": false,
+          "product.isDeleted": null,
         },
       },
       {
