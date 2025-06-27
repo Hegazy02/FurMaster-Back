@@ -15,6 +15,8 @@ const UsersSchema = new Schema({
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   role: { type: String, default: "user" },
+  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+
 });
 
 module.exports = mongoose.model("User", UsersSchema);
