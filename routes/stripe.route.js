@@ -20,7 +20,15 @@ router.post("/create-checkout-session", verifyToken, async (req, res) => {
    try {
      console.log("user", req.user);
      const userId = req.user._id;
-    const lineItems = products.map((product) => ({
+     const validProducts = products.filter(product =>
+  product?.name &&
+  typeof product.price === 'number' &&
+  product.price > 0 &&
+  typeof product.quantity === 'number' &&
+  product.quantity > 0
+);
+
+    const lineItems = validProducts.map((product) => ({
       price_data: {
          currency: "egp",
         product_data: {
@@ -44,6 +52,8 @@ cancel_url: "https://furmaster.netlify.app/cancel",
      });
     res.json({ url: session.url });
    } catch (error) {
+      console.error("Stripe error:", error);
+
      res.status(500).json({ error: error.message });
    }
 });
