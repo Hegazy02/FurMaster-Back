@@ -3,6 +3,7 @@ const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const stripeRoutes = require('./routes/stripe.route.js');
+const { handleWebhook } = require("./controllers/stripe.controller");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -23,10 +24,23 @@ const colorRoutes = require("./routes/color.route.js");
 const variantRoutes = require("./routes/product_variant.route.js");
 const statisticRoutes = require("./routes/statistic.route.js");
 const wishlistRoutes = require("./routes/wishlist.route.js");
+const bodyParser = require("body-parser");
+
 
 
 app.use(morgan("dev"));
 app.use(cors());
+const rawBodySaver = function (req, res, buf) {
+  if (buf && buf.length) {
+    req.rawBody = buf; 
+  }
+};
+
+app.post(
+  "/api/stripe/webhook",
+ bodyParser.raw({ type: "application/json" , verify: rawBodySaver }),
+  handleWebhook
+);
 
 
 

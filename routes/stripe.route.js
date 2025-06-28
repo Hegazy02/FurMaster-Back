@@ -1,7 +1,6 @@
 const express = require("express");
 const Stripe = require("stripe");
 require("dotenv").config();
-const { handleWebhook } = require("../controllers/stripe.controller");
 const { verifyToken } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
@@ -49,10 +48,6 @@ cancel_url: "https://furmaster.netlify.app/cancel",
    }
 });
 
-router.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  handleWebhook
-);
+
 
 module.exports = router;
