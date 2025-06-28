@@ -47,7 +47,7 @@ router.post("/create-checkout-session", verifyToken, async (req, res) => {
 success_url: "https://furmaster.netlify.app/success?session_id={CHECKOUT_SESSION_ID}",
 cancel_url: "https://furmaster.netlify.app/cancel",
       metadata: {
-         products: JSON.stringify(products),
+         products: JSON.stringify(validProducts),
       },
      });
     res.json({ url: session.url });
