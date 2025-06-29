@@ -70,6 +70,8 @@ async function getCartItems(userId) {
         image: null,
         variantId: item.variantId,
         productId: null,
+              stock: 0
+
       };
     }
 
@@ -87,6 +89,7 @@ async function getCartItems(userId) {
       image: variant.image || null,
       variantId: item.variantId,
       productId: product._id,
+      stock: variant.stock ?? 0
     };
   });
 }
