@@ -15,7 +15,7 @@ async function getNextOrderNumber() {
   return counter.value;
 }
 
-const mongoose = require('mongoose');
+/*const mongoose = require('mongoose');
 
 const decreaseProductQuantities = async (products) => {
   const operations = products.map((item) => ({
@@ -28,7 +28,7 @@ const decreaseProductQuantities = async (products) => {
 
   const result = await Product.bulkWrite(operations);
   console.log("🛠️ Bulk write result:", result);
-};
+};*/
 
 exports.handleWebhook = async (req, res) => {
   const sig = req.headers["stripe-signature"];
@@ -93,7 +93,6 @@ req.rawBody,
           };
         }),
       });
-      await decreaseProductQuantities(products);
 
       /*///send email
 await sendEmail({
