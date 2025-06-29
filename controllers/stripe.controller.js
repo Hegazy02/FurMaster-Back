@@ -15,16 +15,19 @@ async function getNextOrderNumber() {
   return counter.value;
 }
 
+const mongoose = require('mongoose');
+
 const decreaseProductQuantities = async (products) => {
   const operations = products.map((item) => ({
     updateOne: {
-      filter: { _id: item.productId },
+      filter: { _id: mongoose.Types.ObjectId(item.productId) },
       update: { $inc: { "colors.$[elem].stock": -item.quantity } },
-      arrayFilters: [{ "elem._id": item.variantId }],
+      arrayFilters: [{ "elem._id": mongoose.Types.ObjectId(item.variantId) }],
     },
   }));
 
-  await Product.bulkWrite(operations);
+  const result = await Product.bulkWrite(operations);
+  console.log("🛠️ Bulk write result:", result);
 };
 
 exports.handleWebhook = async (req, res) => {
