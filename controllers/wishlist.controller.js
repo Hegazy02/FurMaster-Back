@@ -86,6 +86,10 @@ const getWishlist = async (req, res, next) => {
 
     const wishlistProductIds = user.wishlist;
 
+       if (!wishlistProductIds.length) {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
     const wishlistProducts = await Product.aggregate(
       productsPipeline(
         { _id: { $in: wishlistProductIds }, isDeleted: null },

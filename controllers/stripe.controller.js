@@ -15,17 +15,7 @@ async function getNextOrderNumber() {
   return counter.value;
 }
 
-const decreaseProductQuantities = async (products) => {
-  const operations = products.map((item) => ({
-    updateOne: {
-      filter: { _id: item.productId },
-      update: { $inc: { "colors.$[elem].stock": -item.quantity } },
-      arrayFilters: [{ "elem._id": item.variantId }],
-    },
-  }));
 
-  await Product.bulkWrite(operations);
-};
 
 exports.handleWebhook = async (req, res) => {
   const sig = req.headers["stripe-signature"];
@@ -90,7 +80,31 @@ req.rawBody,
           };
         }),
       });
-      await decreaseProductQuantities(products);
+
+
+
+      try {
+  for (const p of products) {
+    const product = await Product.findById(p.productId);
+    if (!product) continue;
+
+    const variantIndex = product.colors.findIndex(
+      (color) => color._id.toString() === p.variantId.toString()
+    );
+
+    if (variantIndex === -1) continue;
+
+    product.colors[variantIndex].stock -= Number(p.quantity);
+    if (product.colors[variantIndex].stock < 0) {
+      product.colors[variantIndex].stock = 0;
+    }
+
+    await product.save();
+    console.log(`✅ Stock updated for product ${p.productId}, variant ${p.variantId}`);
+  }
+} catch (stockError) {
+  console.error("❌ Failed to update stock:", stockError);
+}
 
       /*///send email
 await sendEmail({
