@@ -21,6 +21,7 @@
   "homepage": "https://github.com/Hegazy02/angular_node_backend#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
