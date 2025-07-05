@@ -72,8 +72,8 @@ app.get("/", (req, res) => {
 //auh routs
 app.use("/auth", authRoutes);
 //auth middlewares
-app.use(verifyToken);
-app.use("/admin", verifyAdmin);
+// app.use(verifyToken);
+app.use("/admin", verifyToken,verifyAdmin);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
