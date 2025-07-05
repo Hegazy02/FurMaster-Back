@@ -48,7 +48,6 @@ const getUsers = async (req, res, next) => {
     const filter = {
       email: { $regex: email, $options: "i" },
       isActive: { $eq: isActive === "true" ? true : false },
-      role: { $eq: "user" },
     };
 
     const users = await User.find(filter)
