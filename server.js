@@ -7,7 +7,7 @@ const { handleWebhook } = require("./controllers/stripe.controller");
 
 const app = express();
 const port = process.env.PORT || 3000;
-const AppError = require("./utils/appError.js");
+const cors = require("cors");
 const paymentMethodRoutes = require("./routes/payment_method.route.js");
 const userRoutes = require("./routes/user.route.js");
 const authRoutes = require("./routes/auth.route.js");
@@ -48,11 +48,15 @@ app.use((req, res, next) => {
   }
 });
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 10000,
+  })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => {
     console.error("Failed to connect to MongoDB", err);
-    process.exit(1); // Exit process with failure code
+    process.exit(1);
   });
 
 // app.use("/",(req,res,next)=>{
@@ -62,7 +66,7 @@ mongoose
 
 //routes
 app.get("/", (req, res) => {
-  res.send("Angular Node Backend");
+  res.send("FurMaster Backend");
 });
 //auh routs
 app.use("/auth", authRoutes);
@@ -108,6 +112,10 @@ app.use((err, req, res, next) => {
   });
 });
 
+
+
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+module.exports = app;
