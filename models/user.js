@@ -1,4 +1,3 @@
-const { required } = require("joi");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -13,7 +12,11 @@ const UsersSchema = new Schema({
   city: { type: String },
   street: { type: String },
   address: { type: String },
+  isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
+  role: { type: String, default: "user" },
+  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+
 });
 
 module.exports = mongoose.model("User", UsersSchema);
