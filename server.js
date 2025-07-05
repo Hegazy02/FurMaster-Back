@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
-const stripeRoutes = require('./routes/stripe.route.js');
+const stripeRoutes = require("./routes/stripe.route.js");
 const { handleWebhook } = require("./controllers/stripe.controller");
 
 const app = express();
@@ -13,7 +13,7 @@ const userRoutes = require("./routes/user.route.js");
 const authRoutes = require("./routes/auth.route.js");
 const bannerRoutes = require("./routes/banner.route.js");
 const ordersRoutes = require("./routes/order.route");
-const orderRoutes=require("./routes/order.js");
+const orderRoutes = require("./routes/order.js");
 const {
   verifyToken,
   verifyAdmin,
@@ -26,11 +26,28 @@ const statisticRoutes = require("./routes/statistic.route.js");
 const wishlistRoutes = require("./routes/wishlist.route.js");
 const bodyParser = require("body-parser");
 
-
-
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cors());
+const rawBodySaver = function (req, res, buf) {
+  if (buf && buf.length) {
+    req.rawBody = buf;
+  }
+};
+
+app.post(
+  "/api/stripe/webhook",
+  bodyParser.raw({ type: "application/json", verify: rawBodySaver }),
+  handleWebhook
+);
+
+app.use((req, res, next) => {
+  if (req.originalUrl === "/api/stripe/webhook") {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 mongoose
   .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
@@ -43,12 +60,10 @@ mongoose
     process.exit(1);
   });
 
-
 // app.use("/",(req,res,next)=>{
 // req.user={_id:"684d86d4fb4975eb669754a8"};
 // next()
 // });
-
 
 //routes
 app.get("/", (req, res) => {
@@ -57,12 +72,14 @@ app.get("/", (req, res) => {
 //auh routs
 app.use("/auth", authRoutes);
 //auth middlewares
-// app.use(verifyToken);
-// app.use("/admin", verifyAdmin);
+app.use(verifyToken);
+app.use("/admin", verifyAdmin);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
 app.use("/", userRoutes);
+//order routes
+app.use("/api", ordersRoutes);
 
 //banner routes
 app.use("/", bannerRoutes);
@@ -80,8 +97,7 @@ app.use("/api/stripe", stripeRoutes);
 app.use("/admin", statisticRoutes);
 app.use("/", orderRoutes);
 //wishlist routes
-app.use("/", wishlistRoutes)
-
+app.use("/", wishlistRoutes);
 
 const cartRoutes = require("./routes/cart.route.js");
 app.use("/", cartRoutes);
