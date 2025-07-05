@@ -73,11 +73,11 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 //auth middlewares
 // app.use(verifyToken);
-app.use("/admin", verifyToken,verifyAdmin);
+app.use("/admin", verifyToken, verifyAdmin);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
-app.use("/", userRoutes);
+app.use("/", verifyToken, userRoutes);
 //order routes
 app.use("/api", ordersRoutes);
 
@@ -111,9 +111,6 @@ app.use((err, req, res, next) => {
     message: err.message || "Something went wrong",
   });
 });
-
-
-
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
