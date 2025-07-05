@@ -27,6 +27,7 @@ const wishlistRoutes = require("./routes/wishlist.route.js");
 const bodyParser = require("body-parser");
 
 app.use(morgan("dev"));
+app.use(express.json());
 app.use(cors());
 const rawBodySaver = function (req, res, buf) {
   if (buf && buf.length) {
@@ -76,7 +77,6 @@ app.use("/admin", verifyAdmin);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
-//app.use('/api/v1/orders', ordersRoutes);
 app.use("/", userRoutes);
 //order routes
 app.use("/api", ordersRoutes);
