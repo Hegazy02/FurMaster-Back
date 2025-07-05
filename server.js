@@ -29,28 +29,8 @@ const bodyParser = require("body-parser");
 
 
 app.use(morgan("dev"));
+app.use(express.json());
 app.use(cors());
-const rawBodySaver = function (req, res, buf) {
-  if (buf && buf.length) {
-    req.rawBody = buf; 
-  }
-};
-
-app.post(
-  "/api/stripe/webhook",
- bodyParser.raw({ type: "application/json" , verify: rawBodySaver }),
-  handleWebhook
-);
-
-
-
-app.use((req, res, next) => {
-  if (req.originalUrl === '/api/stripe/webhook') {
-    next();
-  } else {
-    express.json()(req, res, next);
-  }
-});
 mongoose
   .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
@@ -77,14 +57,12 @@ app.get("/", (req, res) => {
 //auh routs
 app.use("/auth", authRoutes);
 //auth middlewares
-app.use("/admin", verifyToken, verifyAdmin);
+// app.use(verifyToken);
+// app.use("/admin", verifyAdmin);
 //payment methods routes
 app.use("/payment-methods", paymentMethodRoutes);
 //user routes
-//app.use('/api/v1/orders', ordersRoutes);
 app.use("/", userRoutes);
-//order routes
-app.use('/api', ordersRoutes);
 
 //banner routes
 app.use("/", bannerRoutes);
