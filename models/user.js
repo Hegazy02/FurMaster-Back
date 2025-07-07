@@ -3,7 +3,13 @@ const { Schema } = mongoose;
 
 const UsersSchema = new Schema({
   password: { type: String, required: true, select: false },
-  email: { type: String, required: true, unique: true, immutable: true },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    immutable: true,
+    set: (value) => value.toLowerCase(),
+  },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   gender: { type: Number, required: true },
@@ -15,8 +21,7 @@ const UsersSchema = new Schema({
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   role: { type: String, default: "user" },
-  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
-
+  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
 });
 
 module.exports = mongoose.model("User", UsersSchema);

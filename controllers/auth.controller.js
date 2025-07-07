@@ -43,7 +43,7 @@ const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
     if (!user) {
       throw new Error("invalid credentials");
     }
