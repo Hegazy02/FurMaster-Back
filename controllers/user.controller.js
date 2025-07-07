@@ -46,7 +46,7 @@ const getUsers = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     const filter = {
-      email: { $regex: email, $options: "i" },
+      email: { $regex: email.toLowerCase(), $options: "i" },
       isActive: { $eq: isActive === "true" ? true : false },
       role: { $eq: "user" },
     };
