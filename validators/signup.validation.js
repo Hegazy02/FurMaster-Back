@@ -13,11 +13,7 @@ const signupSchema = Joi.object({
   image: Joi.string().uri().optional(),
 
   password: Joi.string()
-    .pattern(
-      new RegExp(
-        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
-      )
-    )
+    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[^ws]).{8,}$"))
     .required()
     .messages({
       "string.pattern.base":
